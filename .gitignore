@@ -4,11 +4,11 @@ package-lock.json
 yarn.lock
 
 # Build output
-# dist/ - INCLUDED for Smithery deployment
-# *.js - INCLUDED for Smithery deployment
-# *.js.map - INCLUDED for Smithery deployment
-# *.d.ts - INCLUDED for Smithery deployment
-# *.d.ts.map - INCLUDED for Smithery deployment
+dist/
+*.js
+*.js.map
+*.d.ts
+*.d.ts.map
 
 # Logs
 logs/
