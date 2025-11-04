@@ -20,9 +20,9 @@
     "plugin-architecture"
   ],
   "runtime": "node",
-  "command": "npx",
-  "args": ["tsx", "src/index.ts"],
-  "installCommand": "npm install",
+  "command": "node",
+  "args": ["dist/index.js"],
+  "installCommand": "npm install --production",
   "engines": {
     "node": ">=20.0.0"
   },
