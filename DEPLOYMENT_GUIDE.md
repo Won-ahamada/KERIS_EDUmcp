@@ -23,15 +23,18 @@ EDU API MCP Server의 배포 및 사용 가이드입니다.
 
 ```
 KERIS_EDUmcp/
-├── mcp-server/              # MCP 서버 메인 프로젝트
-│   ├── src/                 # 소스 코드
-│   ├── providers/           # TOON 파일들
-│   ├── README.md            # 상세 문서
-│   ├── package.json
-│   └── smithery.json        # Smithery 설정
-├── *.toon                   # TOON 스펙 파일들
-├── *.json                   # API 스펙 파일들
-└── *.md                     # 문서들
+├── src/                     # 소스 코드
+│   ├── core/                # 핵심 로직
+│   ├── lib/                 # 라이브러리
+│   └── types/               # 타입 정의
+├── providers/               # TOON 파일들
+│   ├── school-alrimi.toon
+│   └── riss.toon
+├── docs/                    # 문서들
+├── examples/                # 예시 파일들
+├── README.md                # 상세 문서
+├── package.json
+└── smithery.json            # Smithery 설정
 ```
 
 ---
@@ -56,7 +59,7 @@ Windows/macOS에서 Claude Desktop 앱을 다운로드하여 설치합니다.
 ```bash
 # 1. 저장소 클론
 git clone https://github.com/Won-ahamada/KERIS_EDUmcp.git
-cd KERIS_EDUmcp/mcp-server
+cd KERIS_EDUmcp
 
 # 2. 의존성 설치
 npm install
@@ -69,7 +72,7 @@ npm run build
 
 1. https://github.com/Won-ahamada/KERIS_EDUmcp 방문
 2. "Code" → "Download ZIP" 클릭
-3. 압축 해제 후 `mcp-server` 폴더로 이동
+3. 압축 해제
 4. 터미널에서 `npm install && npm run build` 실행
 
 ### Claude Desktop 설정
@@ -84,7 +87,7 @@ npm run build
     "edu-api": {
       "command": "node",
       "args": [
-        "C:\\Users\\YourName\\KERIS_EDUmcp\\mcp-server\\dist\\index.js"
+        "C:\\Users\\YourName\\KERIS_EDUmcp\\dist\\index.js"
       ]
     }
   }
@@ -99,7 +102,7 @@ npm run build
     "edu-api": {
       "command": "node",
       "args": [
-        "/Users/yourname/KERIS_EDUmcp/mcp-server/dist/index.js"
+        "/Users/yourname/KERIS_EDUmcp/dist/index.js"
       ]
     }
   }
@@ -126,7 +129,7 @@ npm install -g @smithery/cli
 smithery login
 
 # 3. 프로젝트 루트에서 배포
-cd KERIS_EDUmcp/mcp-server
+cd KERIS_EDUmcp
 smithery publish
 ```
 

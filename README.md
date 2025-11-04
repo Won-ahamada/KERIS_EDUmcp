@@ -1,671 +1,383 @@
-# 교육 데이터 통합 MCP 서버
+# EDU API MCP Server
 
-> 한국 교육 관련 공공 API를 통합하여 AI가 쉽게 접근할 수 있도록 하는 Model Context Protocol (MCP) 서버
+확장 가능한 교육 API 통합 MCP 서버 - **TOON 파일만 넣으면 자동 확장**
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![MCP](https://img.shields.io/badge/MCP-1.0-green.svg)](https://modelcontextprotocol.io)
-[![APIs](https://img.shields.io/badge/APIs-13-orange.svg)](#api-목록)
-[![Tools](https://img.shields.io/badge/MCP_Tools-9-purple.svg)](#mcp-tools)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
+[![MCP](https://img.shields.io/badge/MCP-1.0-green.svg)](https://modelcontextprotocol.io/)
 
-## 📋 목차
+## 🚀 주요 특징
 
-- [개요](#개요)
-- [주요 기능](#주요-기능)
-- [아키텍처](#아키텍처)
-- [API 목록](#api-목록)
-- [MCP Tools](#mcp-tools)
-- [설치 및 실행](#설치-및-실행)
-- [사용 예시](#사용-예시)
-- [확장 계획](#확장-계획)
-- [개발 가이드](#개발-가이드)
-- [라이선스](#라이선스)
+- **제로 코드 확장**: `.toon` 파일만 `providers/` 폴더에 넣으면 자동으로 API가 MCP Tool로 등록됩니다
+- **자동 스캔**: 서버 시작 시 provider 폴더를 자동으로 스캔하여 모든 TOON 파일 로드
+- **타입 안전성**: 100% TypeScript로 작성되어 타입 안전성 보장
+- **압축 효율**: TOON 포맷을 사용하여 API 스펙을 85% 압축 (JSON 대비)
+- **플러그인 아키텍처**: 각 API는 독립적인 Provider로 동작
 
----
+## 📋 포함된 Provider
 
-## 개요
+### 1. 학교알리미 API (school-alrimi)
+- **제공기관**: 교육부 학교알리미
+- **엔드포인트**: 12개
+  - 학교 기본정보
+  - 학생/학급 통계
+  - 교원 정보
+  - 학교폭력 예방 실적 등
+- **MCP Tools**: 17개
 
-이 프로젝트는 **한국 교육 데이터에 대한 단일 접근점(Single Point of Access)**을 제공하는 MCP 서버입니다. Claude와 같은 AI 어시스턴트가 교육 관련 복잡한 질문에 답할 수 있도록 여러 공공 API를 통합합니다.
+### 2. RISS API (riss)
+- **제공기관**: 한국교육학술정보원
+- **엔드포인트**: 1개 (학위논문 검색)
+- **MCP Tools**: 1개
 
-### 왜 이 프로젝트가 필요한가?
+## 📦 설치
 
-**문제:**
-- 교육 데이터가 여러 공공 API에 분산되어 있음
-- 각 API마다 다른 인증, 파라미터, 응답 형식
-- AI가 직접 접근하기 어려운 구조
+### 필수 요구사항
 
-**해결:**
-- **통합 인터페이스**: 모든 API를 MCP Tools로 통합
-- **표준화**: 일관된 요청/응답 형식
-- **확장 가능**: 플러그인 아키텍처로 새 API 추가 용이
+- Node.js >= 20.0.0
+- npm 또는 yarn
 
-### 핵심 가치
-
-```
-교육 데이터 + AI = 교육 인사이트
-```
-
-**예시 질문:**
-- "서울 강남구에서 학생-교사 비율이 가장 좋은 고등학교는?"
-- "지난 3년간 인공지능 관련 박사 학위논문이 가장 많이 나온 대학은?"
-- "전국 중학교의 평균 학급 규모와 서울의 차이는?"
-
----
-
-## 주요 기능
-
-### ✅ 현재 구현 (v1.0)
-
-#### 1. 학교알리미 API 통합 (12개 엔드포인트)
-
-**기본정보:**
-- 학교 기본정보 조회 (전국 약 20,000개 학교)
-
-**학사/학생:**
-- 수업일수 및 수업시수
-- 학교 현황
-- 성별 학생 수
-- 학년별·학급별 학생 수
-- 전·출입 및 학업중단 학생 수
-- 입학생 현황
-- 자유학기제 운영 (중학교)
-
-**교원:**
-- 직위별 교원 현황
-- 자격종별 교원 현황
-- 표시과목별 교원 현황
-
-**학교생활:**
-- 학교폭력 예방교육 실적
-
-#### 2. RISS API 통합 (1개 엔드포인트)
-
-**학술검색:**
-- 학위논문 검색 (국내외 석·박사 약 700,000건)
-- 제목, 저자, 대학별 검색
-- 발행년도 필터링
-- 원문 보유 여부 확인
-
-#### 3. MCP Tools (9개)
-
-**학교알리미 Tools:**
-- `search_schools`: 조건별 학교 검색
-- `get_student_statistics`: 학생 통계 조회
-- `get_teacher_statistics`: 교원 통계 조회
-- `analyze_school_comprehensive`: 학교 종합 분석
-- `compare_schools`: 여러 학교 비교
-
-**RISS Tools:**
-- `search_riss_thesis`: 학위논문 검색
-- `get_thesis_by_author`: 저자별 논문 조회
-- `get_thesis_by_university`: 대학별 논문 통계
-- `analyze_thesis_trends`: 연구 추세 분석
-
-### 📝 계획 중 (v2.0+)
-
-- 급식서비스 API (5개 엔드포인트)
-- 나이스 교육정보 API (8개 엔드포인트)
-- 대학정보공시 API (5개 엔드포인트)
-- 교육통계 API (3개 엔드포인트)
-
-**목표: 총 45개 이상의 API 통합**
-
----
-
-## 아키텍처
-
-### 전체 구조
-
-```
-┌─────────────────────────────────────────┐
-│          Claude / AI Client             │
-└──────────────┬──────────────────────────┘
-               │ MCP Protocol
-┌──────────────┴──────────────────────────┐
-│           MCP Server Core               │
-│  ┌────────────────────────────────┐    │
-│  │   Tool Registry & Router       │    │
-│  └────────────┬───────────────────┘    │
-└───────────────┼────────────────────────┘
-                │
-┌───────────────┴────────────────────────┐
-│        Provider Manager                │
-└───────────────┬────────────────────────┘
-                │
-     ┌──────────┼──────────┐
-     │          │          │
-┌────┴────┐ ┌──┴─────┐ ┌─┴────────┐
-│ School  │ │  RISS  │ │  Future  │
-│ Alrimi  │ │Provider│ │ Providers│
-└────┬────┘ └───┬────┘ └─────┬────┘
-     │          │            │
-     └──────────┴────────────┘
-                │
-┌───────────────┴────────────────────────┐
-│      Common Services Layer             │
-│  Cache | Logger | HTTP | Validator    │
-└────────────────────────────────────────┘
-```
-
-### 핵심 설계 패턴
-
-1. **Provider Pattern**: 각 API 제공자별 독립 구현
-2. **Plugin Architecture**: 동적 Provider 로딩
-3. **Strategy Pattern**: 인증 방식별 전략
-4. **Decorator Pattern**: 캐싱, 로깅 등 횡단 관심사
-5. **Composite Pattern**: 여러 API 데이터 조합
-
-### 확장 가능성
-
-```typescript
-// 새 Provider 추가가 매우 간단
-export class NewApiProvider extends ApiProviderBase {
-  readonly id = 'new-api';
-  readonly name = '새로운 API';
-
-  getEndpoints(): ApiEndpoint[] {
-    return [new MyEndpoint()];
-  }
-
-  registerTools(registry: ToolRegistry): void {
-    registry.register(new MyTool(this));
-  }
-}
-```
-
----
-
-## API 목록
-
-### 학교알리미 (12개)
-
-| ID | API Type | 카테고리 | 이름 | 설명 |
-|----|----------|---------|------|------|
-| school-basic-info | 0 | 기본정보 | 학교 기본정보 | 학교명, 주소, 연락처 등 |
-| class-days | 08 | 학사/학생 | 수업일수 | 연간 수업일수 및 시수 |
-| free-semester | 04 | 학사/학생 | 자유학기제 | 중학교 자유학기제 운영 |
-| school-status | 62 | 학사/학생 | 학교 현황 | 전체 학교 현황 정보 |
-| student-gender | 63 | 학사/학생 | 성별 학생수 | 남녀 학생 수 통계 |
-| student-by-grade | 09 | 학사/학생 | 학년별 학생수 | 학년·학급별 학생 수 |
-| student-transfer | 10 | 학사/학생 | 전출입 학생 | 전학 및 학업중단 학생 |
-| teacher-position | 22 | 교원 | 직위별 교원 | 교장, 교감, 교사 등 |
-| teacher-license | 64 | 교원 | 자격종별 교원 | 정교사, 준교사 등 |
-| teacher-subject | 24 | 교원 | 과목별 교원 | 국어, 영어, 수학 등 |
-| violence-prevention | 94 | 학교생활 | 학교폭력 예방 | 예방교육 실적 |
-| enrollment | 51 | 학사/학생 | 입학생 현황 | 신입생 입학 통계 |
-
-### RISS (1개)
-
-| ID | 카테고리 | 이름 | 설명 |
-|----|---------|------|------|
-| search-thesis | 학술검색 | 학위논문 검색 | 국내외 석·박사 논문 검색 |
-
----
-
-## MCP Tools
-
-### 학교 검색 및 정보
-
-#### `search_schools`
-조건에 맞는 학교를 검색합니다.
-
-**입력:**
-```json
-{
-  "region": "서울특별시",
-  "district": "강남구",
-  "schoolType": "04",
-  "schoolName": "고등학교"
-}
-```
-
-**출력:**
-```json
-[
-  {
-    "SCHUL_CODE": "7010001",
-    "SCHUL_NM": "서울고등학교",
-    "ATPT_OFCDC_ORG_NM": "서울특별시교육청",
-    "ADRES_BRKDN": "서울특별시 강남구 대치동",
-    "USER_TELNO": "02-1234-5678"
-  }
-]
-```
-
-#### `get_student_statistics`
-학교의 학생 통계를 조회합니다.
-
-**입력:**
-```json
-{
-  "schoolCode": "7010001",
-  "year": 2024,
-  "includeGenderStats": true,
-  "includeGradeStats": true
-}
-```
-
-**출력:**
-```json
-{
-  "totalStudents": 1200,
-  "genderStats": {
-    "male": 600,
-    "female": 600
-  },
-  "gradeStats": [
-    { "grade": 1, "students": 400, "classes": 10 }
-  ]
-}
-```
-
-#### `analyze_school_comprehensive`
-학교의 종합 분석 정보를 제공합니다.
-
-**입력:**
-```json
-{
-  "schoolCode": "7010001",
-  "year": 2024
-}
-```
-
-**출력:**
-```json
-{
-  "basic": { "SCHUL_NM": "서울고등학교" },
-  "students": { "total": 1200 },
-  "teachers": { "total": 80 },
-  "insights": {
-    "studentTeacherRatio": 15,
-    "averageClassSize": 40
-  }
-}
-```
-
-### 학술 검색
-
-#### `search_riss_thesis`
-RISS에서 학위논문을 검색합니다.
-
-**입력:**
-```json
-{
-  "keyword": "인공지능",
-  "yearFrom": 2020,
-  "yearTo": 2024,
-  "thesisType": "id",
-  "hasFulltext": true
-}
-```
-
-**출력:**
-```json
-{
-  "meta": {
-    "total": 156,
-    "page": 1,
-    "hasNext": true
-  },
-  "results": [
-    {
-      "title": "딥러닝 기반 이미지 분류 연구",
-      "author": "홍길동",
-      "publisher": "서울대학교",
-      "year": 2023,
-      "thesisType": "국내박사",
-      "hasFulltext": true
-    }
-  ]
-}
-```
-
-#### `analyze_thesis_trends`
-특정 키워드의 연구 추세를 분석합니다.
-
-**입력:**
-```json
-{
-  "keyword": "인공지능",
-  "yearFrom": 2015,
-  "yearTo": 2024
-}
-```
-
-**출력:**
-```json
-{
-  "total": 523,
-  "trends": [
-    { "year": 2023, "count": 78 },
-    { "year": 2024, "count": 92 }
-  ],
-  "insights": {
-    "peakYear": 2024,
-    "growthRate": 15.2,
-    "trend": "increasing"
-  }
-}
-```
-
----
-
-## 설치 및 실행
-
-### 사전 요구사항
-
-- Node.js 20 이상
-- TypeScript 5 이상
-- API 키 발급:
-  - [학교알리미 API 키](http://www.schoolinfo.go.kr/openApi.do)
-  - [RISS API 키](http://www.riss.kr/openApi)
-
-### 설치
+### 설치 방법
 
 ```bash
-# 저장소 클론
-git clone https://github.com/your-org/edu-mcp-server.git
-cd edu-mcp-server
+# 1. 저장소 클론
+git clone https://github.com/Won-ahamada/KERIS_EDUmcp.git
+cd KERIS_EDUmcp
 
-# 의존성 설치
+# 2. 의존성 설치
 npm install
 
-# 환경변수 설정
-cp .env.example .env.local
-# .env.local 파일을 열어 API 키 입력
+# 3. 빌드
+npm run build
 ```
 
-### 환경변수 설정
+## 🎯 사용 방법
 
-`.env.local` 파일:
-
-```env
-# API Keys
-SCHOOL_ALRIMI_API_KEY=your_school_alrimi_key
-RISS_API_KEY=your_riss_key
-
-# Server Configuration
-NODE_ENV=development
-LOG_LEVEL=info
-
-# Cache
-CACHE_STRATEGY=memory
-CACHE_DEFAULT_TTL=3600
-```
-
-### 실행
+### 1. 기본 실행
 
 ```bash
-# 개발 모드
-npm run dev
-
-# 프로덕션 빌드
-npm run build
 npm start
-
-# 테스트
-npm test
 ```
 
-### Claude Desktop 연동
+### 2. Claude Desktop에서 사용
 
-`claude_desktop_config.json`:
+Claude Desktop의 설정 파일(`claude_desktop_config.json`)에 다음을 추가:
 
 ```json
 {
   "mcpServers": {
     "edu-api": {
       "command": "node",
-      "args": ["/path/to/edu-mcp-server/dist/index.js"],
+      "args": [
+        "/absolute/path/to/KERIS_EDUmcp/dist/index.js"
+      ]
+    }
+  }
+}
+```
+
+**Windows 예시:**
+```json
+{
+  "mcpServers": {
+    "edu-api": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\YourName\\KERIS_EDUmcp\\dist\\index.js"
+      ]
+    }
+  }
+}
+```
+
+**macOS/Linux 예시:**
+```json
+{
+  "mcpServers": {
+    "edu-api": {
+      "command": "node",
+      "args": [
+        "/home/yourname/KERIS_EDUmcp/dist/index.js"
+      ]
+    }
+  }
+}
+```
+
+### 3. Claude Desktop 재시작
+
+설정 변경 후 Claude Desktop을 재시작하면 MCP Tools가 자동으로 로드됩니다.
+
+## ➕ 새 Provider 추가하기
+
+### 단계 1: TOON 파일 작성
+
+`providers/` 폴더에 새 `.toon` 파일을 생성합니다.
+
+```toon
+# my-api.toon
+
+## Provider 정보
+provider{id,name,version,baseUrl,method,dataFormat}:
+  my-api,My API,1.0.0,https://api.example.com,GET,JSON
+
+authentication{type,parameterName,location}:
+  apiKey,api_key,query
+
+## 공통 파라미터
+commonParameters.required[1]{name,type,description}:
+  api_key,string,API 인증키
+
+## 엔드포인트
+endpoints[2]{id,apiType,name,description}:
+  get-data,01,데이터조회,데이터를조회합니다
+  get-stats,02,통계조회,통계를조회합니다
+```
+
+### 단계 2: 서버 재시작
+
+```bash
+npm run build
+npm start
+```
+
+**그게 전부입니다!** 새 API가 자동으로 MCP Tool로 등록됩니다.
+
+## 🏗️ 프로젝트 구조
+
+```
+KERIS_EDUmcp/
+├── src/
+│   ├── core/
+│   │   ├── provider-loader.ts    # TOON 파일 자동 스캔 및 로드
+│   │   ├── provider-factory.ts   # Provider 인스턴스 생성
+│   │   ├── tool-registry.ts      # MCP Tool 자동 등록
+│   │   └── mcp-server.ts         # MCP 서버 메인 로직
+│   ├── lib/
+│   │   └── toon-parser.ts        # TOON 파서
+│   ├── types/
+│   │   └── index.ts              # 타입 정의
+│   └── index.ts                  # 진입점
+├── providers/                    # 🔥 여기에 .toon 파일 추가
+│   ├── school-alrimi.toon
+│   └── riss.toon
+├── docs/                         # 문서
+│   ├── API_연계_확장_계획.md
+│   ├── MCP_서버_확장_계획.md
+│   ├── toon-format-guide.md
+│   └── ...
+├── examples/                     # 예시 파일
+│   ├── school-alrimi-api-spec.toon
+│   ├── riss-api-spec.toon
+│   └── ...
+├── dist/                         # 빌드 결과물
+├── package.json
+├── tsconfig.json
+├── smithery.json
+├── README.md
+├── CHANGELOG.md
+├── DEPLOYMENT_GUIDE.md
+└── LICENSE
+```
+
+## 📖 TOON 포맷 가이드
+
+TOON (Token-Oriented Object Notation)은 테이블 형식 데이터를 표현하는 압축 포맷입니다.
+
+### 기본 문법
+
+```toon
+# 주석
+tableName[rowCount]{field1,field2,field3}:
+  value1,value2,value3
+  value4,value5,value6
+```
+
+### 실전 예시
+
+```toon
+## Provider 정보
+provider{id,name,version,baseUrl}:
+  school-api,학교API,1.0.0,https://api.school.kr
+
+## 엔드포인트 정의
+endpoints[3]{id,apiType,name,description}:
+  school-info,01,학교정보,학교기본정보조회
+  student-count,02,학생수,학생수통계
+  teacher-info,03,교원정보,교원현황조회
+```
+
+### 중첩 경로 지원
+
+```toon
+endpoints.basic[1]{id,name}:
+  school-info,학교기본정보
+
+endpoints.student[2]{id,name}:
+  student-count,학생수
+  student-transfer,전출입학생
+```
+
+이것은 다음과 같이 파싱됩니다:
+
+```json
+{
+  "endpoints": {
+    "basic": [
+      {"id": "school-info", "name": "학교기본정보"}
+    ],
+    "student": [
+      {"id": "student-count", "name": "학생수"},
+      {"id": "student-transfer", "name": "전출입학생"}
+    ]
+  }
+}
+```
+
+## 🛠️ 개발
+
+### 개발 모드 실행
+
+```bash
+npm run dev
+```
+
+### 빌드
+
+```bash
+npm run build
+```
+
+### Provider 목록 조회
+
+```bash
+npm run providers:list
+```
+
+### Provider 검증
+
+```bash
+npm run providers:validate
+```
+
+## 🚢 Smithery 배포
+
+Smithery는 MCP 서버를 쉽게 배포하고 공유할 수 있는 플랫폼입니다.
+
+### 1. smithery.json 생성
+
+프로젝트 루트에 `smithery.json` 파일 생성:
+
+```json
+{
+  "name": "edu-api-mcp-server",
+  "version": "1.0.0",
+  "description": "확장 가능한 교육 API 통합 MCP 서버",
+  "author": "Your Name",
+  "homepage": "https://github.com/Won-ahamada/KERIS_EDUmcp",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Won-ahamada/KERIS_EDUmcp.git"
+  },
+  "runtime": "node",
+  "entrypoint": "dist/index.js",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install"
+}
+```
+
+### 2. Smithery에 배포
+
+```bash
+# Smithery CLI 설치 (최초 1회)
+npm install -g @smithery/cli
+
+# 로그인
+smithery login
+
+# 배포
+smithery publish
+```
+
+### 3. 사용자가 설치하는 방법
+
+배포 후 다른 사용자는 다음과 같이 설치:
+
+```bash
+smithery install edu-api-mcp-server
+```
+
+또는 Claude Desktop 설정에서:
+
+```json
+{
+  "mcpServers": {
+    "edu-api": {
+      "command": "smithery",
+      "args": ["run", "edu-api-mcp-server"]
+    }
+  }
+}
+```
+
+## 📊 통계
+
+- **총 Provider**: 2개
+- **총 Endpoint**: 13개
+- **총 MCP Tools**: 18개
+- **TOON 압축률**: 85% (JSON 대비)
+- **코드 라인 수**: ~1,500 LOC
+
+## 🔒 환경 변수
+
+API 키는 환경 변수로 설정하는 것을 권장합니다:
+
+```bash
+# .env 파일 생성
+SCHOOL_ALRIMI_API_KEY=your_api_key_here
+RISS_API_KEY=your_riss_api_key_here
+```
+
+Claude Desktop 설정에서:
+
+```json
+{
+  "mcpServers": {
+    "edu-api": {
+      "command": "node",
+      "args": ["C:\\path\\to\\dist\\index.js"],
       "env": {
-        "SCHOOL_ALRIMI_API_KEY": "your_key",
-        "RISS_API_KEY": "your_key"
+        "SCHOOL_ALRIMI_API_KEY": "your_key_here",
+        "RISS_API_KEY": "your_key_here"
       }
     }
   }
 }
 ```
 
----
+## 🤝 기여하기
 
-## 사용 예시
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-### Claude에서 사용
+## 📝 라이선스
 
-**예시 1: 학교 검색**
-```
-User: 서울 강남구에 있는 고등학교 목록을 알려줘
+이 프로젝트는 MIT 라이선스를 따릅니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
 
-Claude: [search_schools 도구 사용]
-강남구에는 다음과 같은 고등학교들이 있습니다:
-1. 서울고등학교 - 서울특별시 강남구 대치동
-2. 중동고등학교 - 서울특별시 강남구 일원동
-...
-```
+## 🙏 감사의 글
 
-**예시 2: 학교 분석**
-```
-User: 서울고등학교의 학생-교사 비율은 어때?
+- [Model Context Protocol](https://modelcontextprotocol.io/) - MCP 프레임워크
+- [교육부 학교알리미](https://www.schoolinfo.go.kr/) - 학교 정보 API
+- [한국교육학술정보원](https://www.riss.kr/) - 학위논문 검색 API
 
-Claude: [analyze_school_comprehensive 도구 사용]
-서울고등학교의 2024년 기준:
-- 전체 학생: 1,200명
-- 교원: 80명
-- 학생-교사 비율: 15:1 (전국 평균 13:1보다 약간 높음)
-```
+## 📮 문의
 
-**예시 3: 연구 추세**
-```
-User: 최근 5년간 인공지능 관련 박사 논문이 얼마나 증가했어?
-
-Claude: [analyze_thesis_trends 도구 사용]
-2019-2024년 인공지능 관련 박사 논문 추세:
-- 2019년: 45건
-- 2024년: 92건
-- 증가율: 104% (연평균 15.2%)
-- 주요 연구 대학: 서울대, KAIST, 연세대
-```
-
-### TypeScript에서 직접 사용
-
-```typescript
-import { McpServer } from './src/core/server';
-
-const server = new McpServer();
-await server.start();
-
-// 학교 검색
-const schools = await server.executeTool('search_schools', {
-  region: '서울특별시',
-  schoolType: '04',
-});
-
-// 학위논문 검색
-const theses = await server.executeTool('search_riss_thesis', {
-  keyword: '딥러닝',
-  yearFrom: 2020,
-});
-```
+프로젝트 관련 문의사항은 [GitHub Issues](https://github.com/Won-ahamada/KERIS_EDUmcp/issues)에 등록해주세요.
 
 ---
 
-## 확장 계획
-
-### Roadmap
-
-**Phase 1 (완료) - v1.0**
-- ✅ 학교알리미 12개 API
-- ✅ RISS 1개 API
-- ✅ 9개 MCP Tools
-- ✅ 기본 캐싱 및 로깅
-
-**Phase 2 (진행 중) - v1.5**
-- 📝 급식서비스 API (5개)
-- 📝 나이스 교육정보 API (8개)
-- 📝 데이터베이스 통합
-- 📝 고급 분석 Tools
-
-**Phase 3 (계획) - v2.0**
-- 💡 대학정보공시 API (5개)
-- 💡 교육통계 API (3개)
-- 💡 Cross-provider 데이터 조합
-- 💡 AI 기반 인사이트
-
-**Long-term - v3.0+**
-- 💡 50개 이상 API 통합
-- 💡 실시간 데이터 스트리밍
-- 💡 오픈소스 커뮤니티 구축
-- 💡 SaaS 플랫폼
-
-### 추가 예정 API
-
-| Provider | APIs | 설명 | Status |
-|----------|------|------|--------|
-| 급식서비스 | 5 | 학교 급식 메뉴, 영양 정보 | 계획중 |
-| 나이스 | 8 | 학사일정, 시설, 방과후 | 계획중 |
-| 대학정보 | 5 | 등록금, 장학금, 취업률 | 계획중 |
-| 교육통계 | 3 | 지역별, 추세 분석 | 계획중 |
-| 기상청 | 2 | 학교 주변 날씨 | 검토중 |
-| 안전정보 | 2 | 스쿨존, 통학로 | 검토중 |
-
----
-
-## 개발 가이드
-
-### 프로젝트 구조
-
-```
-251104-mcp-edu/
-├── src/
-│   ├── core/              # MCP 서버 코어
-│   ├── providers/         # Provider 플러그인
-│   │   ├── school-alrimi/
-│   │   ├── riss/
-│   │   └── ...
-│   ├── services/          # 공통 서비스
-│   └── utils/             # 유틸리티
-├── tests/                 # 테스트
-├── docs/                  # 문서
-└── data/                  # 정적 데이터
-```
-
-### 새 Provider 추가하기
-
-1. **스캐폴딩**
-   ```bash
-   npm run generate:provider -- --name my-api
-   ```
-
-2. **Endpoint 구현**
-   ```typescript
-   export class MyEndpoint extends EndpointBase {
-     readonly id = 'my-endpoint';
-     // 구현...
-   }
-   ```
-
-3. **Tool 구현**
-   ```typescript
-   export class MyTool implements ToolDefinition {
-     readonly name = 'my_tool';
-     // 구현...
-   }
-   ```
-
-4. **Provider 등록**
-   ```typescript
-   // src/providers/provider.registry.ts
-   import { MyApiProvider } from './my-api/my-api.provider';
-   ```
-
-5. **설정 추가**
-   ```json
-   // providers-config.json
-   {
-     "providers": [
-       {
-         "id": "my-api",
-         "enabled": true,
-         "config": { ... }
-       }
-     ]
-   }
-   ```
-
-상세한 가이드는 [docs/guides/creating-provider.md](docs/guides/creating-provider.md) 참고
-
-### 테스트 작성
-
-```typescript
-describe('MyProvider', () => {
-  let provider: MyApiProvider;
-
-  beforeAll(async () => {
-    provider = new MyApiProvider();
-    await provider.initialize({ apiKey: 'test' });
-  });
-
-  test('should fetch data', async () => {
-    const result = await provider.handleRequest('my-endpoint', {});
-    expect(result).toBeDefined();
-  });
-});
-```
-
----
-
-## 기여하기
-
-기여를 환영합니다! 다음 방법으로 참여할 수 있습니다:
-
-1. **Issues**: 버그 리포트, 기능 제안
-2. **Pull Requests**: 코드 기여
-3. **Documentation**: 문서 개선
-4. **API 추가**: 새로운 공공 API 통합
-
-기여 가이드라인은 [CONTRIBUTING.md](CONTRIBUTING.md) 참고
-
----
-
-## 문서
-
-- [아키텍처 문서](docs/architecture.md)
-- [API 레퍼런스](docs/api-reference.md)
-- [Provider 작성 가이드](docs/guides/creating-provider.md)
-- [배포 가이드](docs/deployment.md)
-- [FAQ](docs/faq.md)
-
----
-
-## 라이선스
-
-MIT License - 자세한 내용은 [LICENSE](LICENSE) 파일 참고
-
----
-
-## 감사의 글
-
-- [학교알리미](http://www.schoolinfo.go.kr): 학교 정보 제공
-- [RISS](http://www.riss.kr): 학술 정보 제공
-- [Model Context Protocol](https://modelcontextprotocol.io): MCP 표준
-
----
-
-## 연락처
-
-- **이슈 트래커**: [GitHub Issues](https://github.com/your-org/edu-mcp-server/issues)
-- **이메일**: your-email@example.com
-
----
-
-## 통계
-
-- **Provider**: 2개
-- **API Endpoints**: 13개
-- **MCP Tools**: 9개
-- **커버리지**: 전국 약 20,000개 학교, 700,000건 논문
-- **개발 기간**: 2개월 (예상)
-- **라이선스**: MIT
-
----
-
-Made with ❤️ for Education
+**Made with ❤️ for Korean Education Data**
