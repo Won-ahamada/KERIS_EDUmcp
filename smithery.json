@@ -20,8 +20,8 @@
     "plugin-architecture"
   ],
   "runtime": "node",
-  "entrypoint": "dist/index.js",
-  "buildCommand": "npm run build",
+  "command": "npx",
+  "args": ["tsx", "src/index.ts"],
   "installCommand": "npm install",
   "engines": {
     "node": ">=20.0.0"
