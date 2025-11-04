@@ -1,0 +1,202 @@
+RISS API
+# RISS Thesis Search API
+api_id: riss-thesis
+base_url: http://www.riss.kr/openApi
+method: GET
+content_type: xml
+charset: utf-8
+timeout_ms: 10000
+
+# Glossary (용어 정의)
+glossary:
+  toc: "Table of Contents (목차)"
+  abstract: "Abstract (초록)"
+  stype: "Search Type (학위논문 유형)"
+  mtype: "Material Type (자료 유형)"
+  riss.type: "Resource Type (자료 유형 - A:학술논문, O:해외논문, T:학위논문, U:단행본, S:학술지, K:공개강의)"
+  rsnum: "Result Start Number (결과 시작 번호, 1-base)"
+  rowcount: "Rows per Page (페이지당 결과 수)"
+
+auth:
+  type: query_key
+  location: query
+  param: key
+  env: RISS_API_KEY
+
+# Request Parameters
+params:
+  # Required (fixed)
+  version: "1.0"
+  type: "T"  # T = Thesis (학위논문)
+ 
+  # Search fields (keyword OR 최소 1개 이상 필수)
+  keyword: string?          # 전체 검색어 (제목, 저자, 주제어 등) - keyword 사용 시 아래 필드들 생략 가능
+  title: string?            # 논문 제목 - keyword 없으면 이 중 1개 이상 필수
+  author: string?           # 저자명 - keyword 없으면 이 중 1개 이상 필수
+  subject: string?          # 주제어 - keyword 없으면 이 중 1개 이상 필수
+  publisher: string?        # 수여대학 (발행기관) - keyword 없으면 이 중 1개 이상 필수
+  abstract: string?         # 초록(Abstract) 내용 - keyword 없으면 이 중 1개 이상 필수
+  toc: string?              # 목차(Table of Contents) 내용 - keyword 없으면 이 중 1개 이상 필수
+ 
+  # Filters
+  spubdate: int?            # 검색 시작 발행년도 (예: 2020)
+  epubdate: int?            # 검색 마지막 발행년도 (예: 2025)
+  down: Y|N?                # 원문 다운로드 가능 여부 (Y=가능, N=불가)
+  stype: im|id|oa|od|oc?    # 학위논문 유형 (아래 stype_codes 참조)
+ 
+  # Sort & Pagination
+  sort: T|A|Y = Y           # 정렬 기준 (T=Title/제목, A=Author/저자, Y=Year/발행년도)
+  asc: A|D = D              # 정렬 순서 (A=Ascending/오름차순, D=Descending/내림차순)
+  rsnum: int(>=1) = 1       # 결과 시작 번호 (1-based index, 예: 1=첫 페이지, 11=두번째 페이지)
+  rowcount: int(1-100) = 10 # 페이지당 결과 수 (최소 1, 최대 100)
+ 
+  # Validation rules
+  rules:
+    required_if_none_of:
+      - keyword | [title, author, subject, publisher, abstract, toc]
+    url_encoding: utf-8
+
+# Response Structure (XML as-is)
+response:
+  record:
+    head:
+      totalcount: int        # 전체 검색 결과 수
+      Error: int             # 에러 코드 (0=성공) - 실제 XML 태그는 <Error> 또는 <e>
+      ErrorMessage: string   # 에러 메시지
+   
+    metadata[]:              # 검색 결과 목록 (배열)
+      riss.type: "T"         # 자료 유형 (T=학위논문)
+      riss.title: string     # 논문 제목
+      riss.author: string    # 저자명
+      riss.publisher: string # 발행기관 (대학명)
+      riss.pubdate: string   # 발행년도 (문자열, 예: "2017")
+      riss.mtype: string     # 학위 유형 (예: "국내석사", "국내박사", "해외석사", "해외박사")
+      riss.abstract: Y|N     # 초록(Abstract) 보유 여부
+      riss.toc: Y|N          # 목차(Table of Contents) 보유 여부
+      riss.image: Y|N        # 원문 이미지 보유 여부
+      url: string            # 상세정보 페이지 URL (주의: 접두사 없음)
+ 
+  # Success criteria
+  success_criteria:
+    error_code_zero_ok: true
+ 
+  # Normalization (XML → JSON 변환 규칙)
+  normalize:
+    bool_from_YN:            # Y/N 문자를 boolean으로 변환
+      - riss.abstract        # Y → true (초록 있음), N → false (초록 없음)
+      - riss.toc             # Y → true (목차 있음), N → false (목차 없음)
+      - riss.image           # Y → true (원문 있음), N → false (원문 없음)
+   
+    int_year_from: riss.pubdate  # 발행년도 문자열을 정수로 변환 (예: "2017" → 2017)
+   
+    ignore_nodes: [ "script" ]   # XML 파싱 시 무시할 노드 (브라우저 확장에서 주입된 태그 등)
+ 
+  # Pagination helper
+  pagination:
+    hasNext: "((rsnum-1)+rowcount) < totalcount"  # 다음 페이지 존재 여부
+    totalPages: "ceil(totalcount/rowcount)"       # 전체 페이지 수
+
+# Enums (열거형 값 정의)
+stype_codes:
+  im:
+    code: im
+    name_ko: 국내석사학위논문
+    name_en: "Domestic Master's Thesis"
+  id:
+    code: id
+    name_ko: 국내박사학위논문
+    name_en: "Domestic Doctoral Dissertation"
+  oa:
+    code: oa
+    name_ko: 해외취득석사학위논문
+    name_en: "Overseas Master's Thesis"
+  od:
+    code: od
+    name_ko: 해외박사학위논문
+    name_en: "Overseas Doctoral Dissertation"
+  oc:
+    code: oc
+    name_ko: 해외공개박사학위논문
+    name_en: "Open-Access Overseas Doctoral Dissertation"
+
+# MCP Configuration
+mcp:
+  tool_name: search_riss_thesis
+  description: "한국교육학술정보원(RISS) 학위논문 검색 - 국내외 석·박사 학위논문 메타데이터 조회"
+  cache_ttl: 600                          # 캐시 유효기간 (초)
+  rate_limit_hint: unknown
+  pagination: offset(rsnum, rowcount, max=100)
+  retry: [429, 500, 503]                  # 재시도 대상 HTTP 상태 코드
+ 
+  # Standardized output schema (정규화 후 최종 응답 형태)
+  output_schema:
+    meta:
+      - total          # 전체 결과 수 (totalcount)
+      - hasNext        # 다음 페이지 존재 여부
+      - rsnum          # 현재 페이지 시작 번호
+      - rowcount       # 페이지 크기
+      - totalPages?    # 전체 페이지 수 (선택)
+   
+    item_fields:
+      - type           # 자료 유형 (항상 "T")
+      - title          # 논문 제목
+      - author         # 저자명
+      - publisher      # 발행기관
+      - year           # 발행년도 (정수)
+      - mtype          # 학위 유형
+      - hasAbstract    # 초록 보유 여부 (boolean)
+      - hasToc         # 목차 보유 여부 (boolean)
+      - hasFulltext    # 원문 보유 여부 (boolean)
+      - recordUrl      # 상세정보 URL
+
+# Contract tests (샘플)
+tests:
+  sample_request: "http://www.riss.kr/openApi?key=TEST&version=1.0&type=T&keyword=java&rsnum=1&rowcount=5&sort=Y&asc=D"
+  sample_response_file: "./fixtures/riss.xml"
+ 
+  # Expected behavior
+  examples:
+    - name: "기본 키워드 검색"
+      request:
+        keyword: "인공지능"
+        rsnum: 1
+        rowcount: 10
+      expected:
+        status: 200
+        Error: 0
+        totalcount: ">0"
+   
+    - name: "복합 조건 검색"
+      request:
+        keyword: "딥러닝"
+        publisher: "서울대학교"
+        spubdate: 2020
+        epubdate: 2024
+        down: "Y"
+        stype: "id"
+      expected:
+        status: 200
+        Error: 0
+   
+    - name: "검증 실패 - 검색어 없음"
+      request:
+        rsnum: 1
+        rowcount: 10
+      expected:
+        validation_error: "At least one search field required"
+
+# Field mapping reference (빠른 참조용)
+field_mapping:
+  request:
+    keyword: "검색어 → 전체 필드 검색"
+    title: "논문 제목 검색"
+    author: "저자명 검색"
+    subject: "주제어 검색"
+    publisher: "발행기관(대학) 검색"
+    abstract: "초록 내용 검색"
+    toc: "목차 내용 검색"
+   
+  response:
+    riss.abstract: "Y/N → 초록 보유 여부"
+    riss.toc: "Y/N → 목차 보유 여부"
+    riss.image: "Y/N → 원문 이미지 보유 여부"

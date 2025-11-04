@@ -1,0 +1,841 @@
+{
+  "provider": {
+    "id": "riss",
+    "name": "RISS (한국교육학술정보원)",
+    "version": "1.0.0",
+    "description": "RISS 학위논문 검색 API - 국내외 석·박사 학위논문 메타데이터 조회",
+    "baseUrl": "http://www.riss.kr/openApi",
+    "authentication": {
+      "type": "apiKey",
+      "parameterName": "key",
+      "in": "query"
+    },
+    "rateLimit": {
+      "enabled": false,
+      "description": "제한 정보 알 수 없음"
+    },
+    "dataFormat": "XML",
+    "charset": "utf-8",
+    "timeout": 10000
+  },
+  "endpoints": [
+    {
+      "id": "search-thesis",
+      "apiType": "thesis",
+      "category": "학술검색",
+      "name": "학위논문 검색",
+      "description": "국내외 석·박사 학위논문을 검색합니다 (키워드, 제목, 저자 등)",
+      "method": "GET",
+      "path": "/openApi",
+      "parameters": [
+        {
+          "name": "key",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "description": "RISS API 인증키"
+        },
+        {
+          "name": "version",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "value": "1.0",
+          "description": "API 버전"
+        },
+        {
+          "name": "type",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "value": "T",
+          "description": "자료 유형 (T=학위논문)",
+          "enum": ["A", "O", "T", "U", "S", "K"],
+          "enumDescriptions": {
+            "A": "학술논문",
+            "O": "해외논문",
+            "T": "학위논문",
+            "U": "단행본",
+            "S": "학술지",
+            "K": "공개강의"
+          }
+        },
+        {
+          "name": "keyword",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "description": "전체 검색어 (제목, 저자, 주제어 등 통합 검색)",
+          "example": "인공지능",
+          "note": "keyword 사용 시 다른 검색 필드 생략 가능"
+        },
+        {
+          "name": "title",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "description": "논문 제목 검색",
+          "example": "딥러닝",
+          "note": "keyword 미사용 시 최소 1개 검색 필드 필수"
+        },
+        {
+          "name": "author",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "description": "저자명 검색",
+          "example": "홍길동"
+        },
+        {
+          "name": "subject",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "description": "주제어 검색",
+          "example": "기계학습"
+        },
+        {
+          "name": "publisher",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "description": "수여대학(발행기관) 검색",
+          "example": "서울대학교"
+        },
+        {
+          "name": "abstract",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "description": "초록(Abstract) 내용 검색"
+        },
+        {
+          "name": "toc",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "description": "목차(Table of Contents) 내용 검색"
+        },
+        {
+          "name": "spubdate",
+          "in": "query",
+          "type": "integer",
+          "required": false,
+          "description": "검색 시작 발행년도",
+          "example": 2020,
+          "minimum": 1900,
+          "maximum": 2100
+        },
+        {
+          "name": "epubdate",
+          "in": "query",
+          "type": "integer",
+          "required": false,
+          "description": "검색 마지막 발행년도",
+          "example": 2024,
+          "minimum": 1900,
+          "maximum": 2100
+        },
+        {
+          "name": "down",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "description": "원문 다운로드 가능 여부",
+          "enum": ["Y", "N"],
+          "enumDescriptions": {
+            "Y": "다운로드 가능",
+            "N": "다운로드 불가"
+          }
+        },
+        {
+          "name": "stype",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "description": "학위논문 유형",
+          "enum": ["im", "id", "oa", "od", "oc"],
+          "enumDescriptions": {
+            "im": "국내석사학위논문",
+            "id": "국내박사학위논문",
+            "oa": "해외취득석사학위논문",
+            "od": "해외박사학위논문",
+            "oc": "해외공개박사학위논문"
+          }
+        },
+        {
+          "name": "sort",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "default": "Y",
+          "description": "정렬 기준",
+          "enum": ["T", "A", "Y"],
+          "enumDescriptions": {
+            "T": "제목순 (Title)",
+            "A": "저자순 (Author)",
+            "Y": "발행년도순 (Year)"
+          }
+        },
+        {
+          "name": "asc",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "default": "D",
+          "description": "정렬 순서",
+          "enum": ["A", "D"],
+          "enumDescriptions": {
+            "A": "오름차순 (Ascending)",
+            "D": "내림차순 (Descending)"
+          }
+        },
+        {
+          "name": "rsnum",
+          "in": "query",
+          "type": "integer",
+          "required": false,
+          "default": 1,
+          "description": "결과 시작 번호 (1-based index)",
+          "minimum": 1,
+          "example": 1,
+          "note": "페이지네이션: 1=첫 페이지, 11=두번째 페이지(rowcount=10일 때)"
+        },
+        {
+          "name": "rowcount",
+          "in": "query",
+          "type": "integer",
+          "required": false,
+          "default": 10,
+          "description": "페이지당 결과 수",
+          "minimum": 1,
+          "maximum": 100,
+          "example": 10
+        }
+      ],
+      "validation": {
+        "rules": [
+          {
+            "type": "required_if_none_of",
+            "fields": ["keyword", "title", "author", "subject", "publisher", "abstract", "toc"],
+            "message": "keyword 또는 검색 필드 중 최소 1개 필수"
+          }
+        ],
+        "encoding": "utf-8"
+      },
+      "response": {
+        "format": "XML",
+        "structure": {
+          "record": {
+            "head": {
+              "totalcount": {
+                "type": "integer",
+                "description": "전체 검색 결과 수"
+              },
+              "Error": {
+                "type": "integer",
+                "description": "에러 코드 (0=성공)"
+              },
+              "ErrorMessage": {
+                "type": "string",
+                "description": "에러 메시지"
+              }
+            },
+            "metadata": {
+              "type": "array",
+              "description": "검색 결과 목록",
+              "items": {
+                "riss.type": {
+                  "type": "string",
+                  "value": "T",
+                  "description": "자료 유형 (T=학위논문)"
+                },
+                "riss.title": {
+                  "type": "string",
+                  "description": "논문 제목"
+                },
+                "riss.author": {
+                  "type": "string",
+                  "description": "저자명"
+                },
+                "riss.publisher": {
+                  "type": "string",
+                  "description": "발행기관 (대학명)"
+                },
+                "riss.pubdate": {
+                  "type": "string",
+                  "description": "발행년도 (문자열)",
+                  "example": "2017"
+                },
+                "riss.mtype": {
+                  "type": "string",
+                  "description": "학위 유형",
+                  "examples": ["국내석사", "국내박사", "해외석사", "해외박사"]
+                },
+                "riss.abstract": {
+                  "type": "string",
+                  "enum": ["Y", "N"],
+                  "description": "초록(Abstract) 보유 여부"
+                },
+                "riss.toc": {
+                  "type": "string",
+                  "enum": ["Y", "N"],
+                  "description": "목차(Table of Contents) 보유 여부"
+                },
+                "riss.image": {
+                  "type": "string",
+                  "enum": ["Y", "N"],
+                  "description": "원문 이미지 보유 여부"
+                },
+                "url": {
+                  "type": "string",
+                  "description": "상세정보 페이지 URL",
+                  "note": "접두사 없이 제공됨"
+                }
+              }
+            }
+          }
+        },
+        "normalization": {
+          "description": "XML → JSON 변환 시 정규화 규칙",
+          "rules": [
+            {
+              "type": "boolean_from_YN",
+              "fields": ["riss.abstract", "riss.toc", "riss.image"],
+              "mapping": {
+                "Y": true,
+                "N": false
+              }
+            },
+            {
+              "type": "integer_from_string",
+              "fields": ["riss.pubdate"],
+              "example": "\"2017\" → 2017"
+            },
+            {
+              "type": "ignore_nodes",
+              "nodes": ["script"],
+              "reason": "브라우저 확장에서 주입된 태그 제외"
+            }
+          ]
+        },
+        "pagination": {
+          "hasNext": "((rsnum-1) + rowcount) < totalcount",
+          "totalPages": "ceil(totalcount / rowcount)",
+          "description": "다음 페이지 존재 여부 및 전체 페이지 수 계산"
+        }
+      },
+      "cache": {
+        "enabled": true,
+        "ttl": 600,
+        "description": "10분 캐시 (검색 결과는 상대적으로 자주 변경)"
+      },
+      "retry": {
+        "enabled": true,
+        "statusCodes": [429, 500, 503],
+        "maxAttempts": 3,
+        "backoff": "exponential"
+      }
+    }
+  ],
+  "tools": [
+    {
+      "name": "search_riss_thesis",
+      "description": "RISS에서 학위논문을 검색합니다 (국내외 석·박사 논문)",
+      "category": "학술검색",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "전체 검색어 (제목, 저자, 주제어 등 통합 검색)",
+            "example": "인공지능"
+          },
+          "title": {
+            "type": "string",
+            "description": "논문 제목 검색",
+            "example": "딥러닝"
+          },
+          "author": {
+            "type": "string",
+            "description": "저자명 검색",
+            "example": "홍길동"
+          },
+          "publisher": {
+            "type": "string",
+            "description": "발행기관(대학명) 검색",
+            "example": "서울대학교"
+          },
+          "yearFrom": {
+            "type": "integer",
+            "description": "시작 발행년도",
+            "example": 2020,
+            "minimum": 1900
+          },
+          "yearTo": {
+            "type": "integer",
+            "description": "종료 발행년도",
+            "example": 2024,
+            "maximum": 2100
+          },
+          "thesisType": {
+            "type": "string",
+            "description": "학위논문 유형",
+            "enum": ["im", "id", "oa", "od", "oc"],
+            "enumNames": [
+              "국내석사",
+              "국내박사",
+              "해외석사",
+              "해외박사",
+              "해외공개박사"
+            ]
+          },
+          "hasFulltext": {
+            "type": "boolean",
+            "description": "원문 다운로드 가능한 논문만",
+            "default": false
+          },
+          "sortBy": {
+            "type": "string",
+            "description": "정렬 기준",
+            "enum": ["year", "title", "author"],
+            "default": "year"
+          },
+          "sortOrder": {
+            "type": "string",
+            "description": "정렬 순서",
+            "enum": ["asc", "desc"],
+            "default": "desc"
+          },
+          "page": {
+            "type": "integer",
+            "description": "페이지 번호 (1부터 시작)",
+            "minimum": 1,
+            "default": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": "페이지당 결과 수",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 10
+          }
+        },
+        "oneOf": [
+          {
+            "required": ["keyword"]
+          },
+          {
+            "anyOf": [
+              {
+                "required": ["title"]
+              },
+              {
+                "required": ["author"]
+              },
+              {
+                "required": ["publisher"]
+              }
+            ]
+          }
+        ]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "integer",
+                "description": "전체 결과 수"
+              },
+              "page": {
+                "type": "integer",
+                "description": "현재 페이지"
+              },
+              "pageSize": {
+                "type": "integer",
+                "description": "페이지 크기"
+              },
+              "totalPages": {
+                "type": "integer",
+                "description": "전체 페이지 수"
+              },
+              "hasNext": {
+                "type": "boolean",
+                "description": "다음 페이지 존재 여부"
+              }
+            }
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "value": "T",
+                  "description": "자료 유형 (T=학위논문)"
+                },
+                "title": {
+                  "type": "string",
+                  "description": "논문 제목"
+                },
+                "author": {
+                  "type": "string",
+                  "description": "저자명"
+                },
+                "publisher": {
+                  "type": "string",
+                  "description": "발행기관 (대학명)"
+                },
+                "year": {
+                  "type": "integer",
+                  "description": "발행년도"
+                },
+                "thesisType": {
+                  "type": "string",
+                  "description": "학위 유형",
+                  "examples": ["국내석사", "국내박사"]
+                },
+                "hasAbstract": {
+                  "type": "boolean",
+                  "description": "초록 보유 여부"
+                },
+                "hasToc": {
+                  "type": "boolean",
+                  "description": "목차 보유 여부"
+                },
+                "hasFulltext": {
+                  "type": "boolean",
+                  "description": "원문 보유 여부"
+                },
+                "url": {
+                  "type": "string",
+                  "description": "상세정보 페이지 URL"
+                }
+              }
+            }
+          }
+        }
+      },
+      "endpoints": ["search-thesis"],
+      "example": {
+        "input": {
+          "keyword": "인공지능",
+          "yearFrom": 2020,
+          "yearTo": 2024,
+          "thesisType": "id",
+          "hasFulltext": true,
+          "page": 1,
+          "pageSize": 10
+        },
+        "output": {
+          "meta": {
+            "total": 156,
+            "page": 1,
+            "pageSize": 10,
+            "totalPages": 16,
+            "hasNext": true
+          },
+          "results": [
+            {
+              "type": "T",
+              "title": "딥러닝 기반 이미지 분류 연구",
+              "author": "홍길동",
+              "publisher": "서울대학교",
+              "year": 2023,
+              "thesisType": "국내박사",
+              "hasAbstract": true,
+              "hasToc": true,
+              "hasFulltext": true,
+              "url": "http://www.riss.kr/link?id=T12345678"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "get_thesis_by_author",
+      "description": "특정 저자의 학위논문 목록을 조회합니다",
+      "category": "학술검색",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "author": {
+            "type": "string",
+            "description": "저자명",
+            "example": "홍길동"
+          },
+          "university": {
+            "type": "string",
+            "description": "대학명 (선택사항)",
+            "example": "서울대학교"
+          },
+          "thesisType": {
+            "type": "string",
+            "description": "학위 유형 (선택사항)",
+            "enum": ["im", "id", "oa", "od", "oc"]
+          }
+        },
+        "required": ["author"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "author": {
+            "type": "string"
+          },
+          "totalTheses": {
+            "type": "integer"
+          },
+          "theses": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "endpoints": ["search-thesis"]
+    },
+    {
+      "name": "get_thesis_by_university",
+      "description": "특정 대학의 학위논문 통계 및 목록을 조회합니다",
+      "category": "학술검색",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "university": {
+            "type": "string",
+            "description": "대학명",
+            "example": "서울대학교"
+          },
+          "yearFrom": {
+            "type": "integer",
+            "description": "시작 연도"
+          },
+          "yearTo": {
+            "type": "integer",
+            "description": "종료 연도"
+          },
+          "includeStatistics": {
+            "type": "boolean",
+            "description": "통계 정보 포함 여부",
+            "default": true
+          }
+        },
+        "required": ["university"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "university": {
+            "type": "string"
+          },
+          "statistics": {
+            "type": "object",
+            "properties": {
+              "totalTheses": {
+                "type": "integer"
+              },
+              "byType": {
+                "type": "object",
+                "properties": {
+                  "masters": {
+                    "type": "integer"
+                  },
+                  "doctoral": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "byYear": {
+                "type": "object",
+                "description": "연도별 논문 수"
+              }
+            }
+          },
+          "recentTheses": {
+            "type": "array",
+            "description": "최근 논문 목록"
+          }
+        }
+      },
+      "endpoints": ["search-thesis"]
+    },
+    {
+      "name": "analyze_thesis_trends",
+      "description": "특정 키워드/주제의 학위논문 추세를 분석합니다",
+      "category": "분석",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string",
+            "description": "분석할 키워드",
+            "example": "인공지능"
+          },
+          "yearFrom": {
+            "type": "integer",
+            "description": "시작 연도",
+            "example": 2015
+          },
+          "yearTo": {
+            "type": "integer",
+            "description": "종료 연도",
+            "example": 2024
+          },
+          "groupBy": {
+            "type": "string",
+            "description": "그룹화 기준",
+            "enum": ["year", "university", "type"],
+            "default": "year"
+          }
+        },
+        "required": ["keyword", "yearFrom", "yearTo"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "keyword": {
+            "type": "string"
+          },
+          "period": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "integer"
+              },
+              "to": {
+                "type": "integer"
+              }
+            }
+          },
+          "total": {
+            "type": "integer",
+            "description": "전체 논문 수"
+          },
+          "trends": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "year": {
+                  "type": "integer"
+                },
+                "count": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "topUniversities": {
+            "type": "array",
+            "description": "상위 연구 대학"
+          },
+          "insights": {
+            "type": "object",
+            "properties": {
+              "peakYear": {
+                "type": "integer",
+                "description": "최다 논문 발표 연도"
+              },
+              "growthRate": {
+                "type": "number",
+                "description": "연평균 증가율 (%)"
+              },
+              "trend": {
+                "type": "string",
+                "enum": ["increasing", "decreasing", "stable"],
+                "description": "전반적 추세"
+              }
+            }
+          }
+        }
+      },
+      "endpoints": ["search-thesis"]
+    }
+  ],
+  "referenceData": {
+    "thesisTypes": {
+      "im": {
+        "code": "im",
+        "nameKo": "국내석사학위논문",
+        "nameEn": "Domestic Master's Thesis"
+      },
+      "id": {
+        "code": "id",
+        "nameKo": "국내박사학위논문",
+        "nameEn": "Domestic Doctoral Dissertation"
+      },
+      "oa": {
+        "code": "oa",
+        "nameKo": "해외취득석사학위논문",
+        "nameEn": "Overseas Master's Thesis"
+      },
+      "od": {
+        "code": "od",
+        "nameKo": "해외박사학위논문",
+        "nameEn": "Overseas Doctoral Dissertation"
+      },
+      "oc": {
+        "code": "oc",
+        "nameKo": "해외공개박사학위논문",
+        "nameEn": "Open-Access Overseas Doctoral Dissertation"
+      }
+    },
+    "resourceTypes": {
+      "A": "학술논문",
+      "O": "해외논문",
+      "T": "학위논문",
+      "U": "단행본",
+      "S": "학술지",
+      "K": "공개강의"
+    }
+  },
+  "errorCodes": {
+    "SUCCESS": {
+      "code": 0,
+      "description": "정상 처리"
+    },
+    "ERROR": {
+      "code": ">0",
+      "description": "처리 실패",
+      "checkField": "ErrorMessage"
+    }
+  },
+  "implementation": {
+    "priority": {
+      "phase1": [
+        "search-thesis"
+      ]
+    },
+    "dependencies": {
+      "search_riss_thesis": {
+        "requires": ["search-thesis"],
+        "optional": []
+      },
+      "get_thesis_by_author": {
+        "requires": ["search-thesis"],
+        "optional": []
+      },
+      "get_thesis_by_university": {
+        "requires": ["search-thesis"],
+        "optional": []
+      },
+      "analyze_thesis_trends": {
+        "requires": ["search-thesis"],
+        "optional": []
+      }
+    },
+    "notes": [
+      "XML 응답을 JSON으로 변환 필요",
+      "Y/N 값을 boolean으로 정규화",
+      "URL 접두사 처리 필요 (http://www.riss.kr 추가)",
+      "script 태그 등 불필요한 노드 제거",
+      "UTF-8 인코딩 처리 필수"
+    ]
+  }
+}

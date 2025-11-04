@@ -1,0 +1,178 @@
+# RISS API 스펙 (TOON Format)
+# 한국교육학술정보원 학위논문 검색 API
+# Version: 1.0
+# Last Updated: 2025-11-04
+
+## Provider 정보
+provider{id,name,version,baseUrl,method,dataFormat,charset,timeout}:
+  riss,RISS(한국교육학술정보원),1.0.0,http://www.riss.kr/openApi,GET,XML,utf-8,10000
+
+authentication{type,parameterName,location}:
+  apiKey,key,query
+
+## 고정 파라미터
+fixedParameters[2]{name,type,value,description}:
+  version,string,1.0,API버전
+  type,string,T,자료유형(T=학위논문)
+
+## 검색 파라미터 (최소 1개 필수)
+searchParameters[7]{name,type,required,description,note}:
+  keyword,string,optional,전체검색어(제목저자주제어등),keyword사용시다른필드생략가능
+  title,string,optional,논문제목검색,keyword미사용시최소1개필수
+  author,string,optional,저자명검색,keyword미사용시최소1개필수
+  subject,string,optional,주제어검색,keyword미사용시최소1개필수
+  publisher,string,optional,수여대학(발행기관)검색,keyword미사용시최소1개필수
+  abstract,string,optional,초록내용검색,keyword미사용시최소1개필수
+  toc,string,optional,목차내용검색,keyword미사용시최소1개필수
+
+## 필터 파라미터
+filterParameters[3]{name,type,required,description,validation}:
+  spubdate,integer,optional,검색시작발행년도(예:2020),>=1900
+  epubdate,integer,optional,검색마지막발행년도(예:2024),<=2100
+  down,string,optional,원문다운로드가능여부,Y|N
+
+## 학위논문 유형 파라미터
+thesisTypeParameter{name,type,required,description,enum}:
+  stype,string,optional,학위논문유형,im|id|oa|od|oc
+
+# 학위논문 유형 코드
+thesisTypes[5]{code,nameKo,nameEn}:
+  im,국내석사학위논문,Domestic Master's Thesis
+  id,국내박사학위논문,Domestic Doctoral Dissertation
+  oa,해외취득석사학위논문,Overseas Master's Thesis
+  od,해외박사학위논문,Overseas Doctoral Dissertation
+  oc,해외공개박사학위논문,Open-Access Overseas Doctoral Dissertation
+
+## 정렬 및 페이지네이션
+paginationParameters[4]{name,type,required,default,description,validation}:
+  sort,string,optional,Y,정렬기준,T|A|Y(제목|저자|발행년도)
+  asc,string,optional,D,정렬순서,A|D(오름차순|내림차순)
+  rsnum,integer,optional,1,결과시작번호(1-based),>=1
+  rowcount,integer,optional,10,페이지당결과수,1-100
+
+## 자료 유형 코드 (확장용)
+resourceTypes[6]{code,name}:
+  A,학술논문
+  O,해외논문
+  T,학위논문
+  U,단행본
+  S,학술지
+  K,공개강의
+
+## 응답 구조 (XML)
+responseStructure.head[3]{field,type,description}:
+  totalcount,integer,전체검색결과수
+  Error,integer,에러코드(0=성공)
+  ErrorMessage,string,에러메시지
+
+responseStructure.metadata[10]{field,type,description,example}:
+  riss.type,string,자료유형(항상T),T
+  riss.title,string,논문제목,딥러닝기반이미지분류연구
+  riss.author,string,저자명,홍길동
+  riss.publisher,string,발행기관(대학명),서울대학교
+  riss.pubdate,string,발행년도(문자열),2017
+  riss.mtype,string,학위유형,국내박사
+  riss.abstract,string,초록보유여부,Y|N
+  riss.toc,string,목차보유여부,Y|N
+  riss.image,string,원문이미지보유여부,Y|N
+  url,string,상세정보페이지URL,접두사없음
+
+## 응답 정규화 규칙
+normalizationRules[3]{type,fields,mapping}:
+  booleanFromYN,"riss.abstract,riss.toc,riss.image",Y→true|N→false
+  integerFromString,riss.pubdate,string→integer
+  ignoreNodes,script,XML파싱시제외
+
+## 페이지네이션 헬퍼
+paginationLogic[2]{name,formula,description}:
+  hasNext,((rsnum-1)+rowcount)<totalcount,다음페이지존재여부
+  totalPages,ceil(totalcount/rowcount),전체페이지수
+
+## MCP Tools
+tools[4]{name,description,category,complexity}:
+  search_riss_thesis,학위논문검색(국내외석박사),학술검색,simple
+  get_thesis_by_author,특정저자의논문목록조회,학술검색,medium
+  get_thesis_by_university,특정대학의논문통계및목록,학술검색,medium
+  analyze_thesis_trends,키워드/주제의논문추세분석,분석,complex
+
+## Tool 입력 스키마 (search_riss_thesis)
+tool.search_riss_thesis.inputs[10]{param,type,required,description}:
+  keyword,string,optional,전체검색어
+  title,string,optional,논문제목
+  author,string,optional,저자명
+  publisher,string,optional,대학명
+  yearFrom,integer,optional,시작년도
+  yearTo,integer,optional,종료년도
+  thesisType,string,optional,학위유형(im|id|oa|od|oc)
+  hasFulltext,boolean,optional,원문보유논문만
+  page,integer,optional,페이지번호(기본1)
+  pageSize,integer,optional,페이지크기(기본10,최대100)
+
+## Tool 출력 스키마 (search_riss_thesis)
+tool.search_riss_thesis.outputs[10]{field,type,description}:
+  type,string,자료유형(T)
+  title,string,논문제목
+  author,string,저자명
+  publisher,string,발행기관
+  year,integer,발행년도(정수)
+  thesisType,string,학위유형
+  hasAbstract,boolean,초록보유여부
+  hasToc,boolean,목차보유여부
+  hasFulltext,boolean,원문보유여부
+  url,string,상세정보URL
+
+## 검증 규칙
+validationRules[3]{rule,description,errorMessage}:
+  searchFieldRequired,keyword또는검색필드최소1개필수,At least one search field required
+  yearRange,spubdate<=epubdate,Invalid year range
+  pageSize,1<=rowcount<=100,Page size must be between 1 and 100
+
+## 에러 코드
+errorCodes[2]{code,type,description}:
+  0,success,정상처리
+  >0,error,처리실패(ErrorMessage확인)
+
+## 캐시 전략
+cacheStrategy{enabled,ttl,reason}:
+  true,600,검색결과는상대적으로자주변경(10분)
+
+## 재시도 전략
+retryStrategy[3]{statusCode,maxAttempts,backoff}:
+  429,3,exponential
+  500,3,exponential
+  503,3,exponential
+
+## 구현 참고사항
+implementationNotes[5]{topic,note}:
+  encoding,UTF-8인코딩필수
+  xml_parsing,Y/N값을boolean으로변환
+  url_prefix,응답URL에http://www.riss.kr접두사추가
+  script_tags,XML파싱시script태그제거
+  multiline,멀티라인패턴지원불필요(단일라인매칭)
+
+## 예제 요청
+exampleRequests[3]{name,url,description}:
+  기본검색,http://www.riss.kr/openApi?key=TEST&version=1.0&type=T&keyword=인공지능&rsnum=1&rowcount=10,키워드로논문검색
+  복합검색,http://www.riss.kr/openApi?key=TEST&version=1.0&type=T&keyword=딥러닝&publisher=서울대학교&spubdate=2020&epubdate=2024&down=Y&stype=id,여러조건조합
+  페이지네이션,http://www.riss.kr/openApi?key=TEST&version=1.0&type=T&keyword=머신러닝&rsnum=11&rowcount=10,2페이지조회
+
+## 통계
+statistics{totalEndpoints,totalTools,totalParameters,estimatedRecords}:
+  1,4,17,700000+
+
+## 확장 계획
+futureEndpoints[5]{id,name,status,note}:
+  thesis-detail,논문상세정보,planned,개별논문의상세메타데이터
+  citation,인용정보,planned,논문인용관계
+  related,관련논문,planned,유사논문추천
+  download-stats,다운로드통계,planned,논문인기도
+  author-profile,저자프로필,planned,저자별논문목록및통계
+
+## 메타데이터
+metadata{format,version,originalSize,toonSize,compression}:
+  TOON,1.0,24KB,3.5KB,~85%
+
+# 압축 효과
+# JSON v1: 24KB
+# TOON: 3.5KB
+# 절감: 20.5KB (85% 압축)

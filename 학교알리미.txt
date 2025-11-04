@@ -1,0 +1,292 @@
+학교알리미
+분류체계	학사/학생 > 학교기본정보
+요청 URL	http://www.schoolinfo.go.kr/openApi.do	요청제한횟수	제한없음
+제공방식	REST	데이터포맷	JSON
+기관	교육	적제주기	연간
+이용허락조건	
+출처표시 : 출처를 표시하면 영리 목적의 이용이나 변경 및 2차적저작물의 작성을 포함한 자유 이용을 할 수 있습니다.
+요청인자
+요청인자 정보의 변수명, 요청인자타입, 설명, 비고등의 정보를 알려준다.
+변수명	요청인자타입	설명	비고
+apiKey	STRING(필수)	인증키	
+apiType	STRING(필수)	Api종류	0
+sidoCode	STRING(선택)	시도코드	시도시군구코드.xlsx
+sggCode	STRING(선택)	시군구코드
+schulKndCode	STRING(필수)	학교급구분	02:초등 03:중등 04:고등 05:특수 06:그외 07:각종
+출력값
+ 
+Sample Url
+ 
+결과메세지
+출력값
+
+출력값 정보의 번호, 항목명, 항목 ID, 학교급등의 정보를 알려준다.
+번호	항목명	항목 ID	학교급
+1	시도교육청	ATPT_OFCDC_ORG_NM	전체
+2	시도교육청코드	ATPT_OFCDC_ORG_CODE	전체
+3	교육지원청	JU_ORG_NM	전체
+4	교육지원청코드	JU_ORG_CODE	전체
+5	지역	ADRCD_NM	전체
+6	지역코드	ADRCD_CD	전체
+7	소재지구분코드	LCTN_SC_CODE	전체
+8	정보공시 학교코드	SCHUL_CODE	전체
+9	학교명	SCHUL_NM	전체
+10	학교급코드	SCHUL_KND_SC_CODE	전체
+11	설립구분	FOND_SC_CODE	전체
+12	학교특성	HS_KND_SC_NM	전체
+13	분교여부	BNHH_YN	전체
+14	설립유형	SCHUL_FOND_TYP_CODE	전체
+15	주야구분	DGHT_SC_CODE	전체
+16	개교기념일	FOAS_MEMRD	전체
+17	설립일	FOND_YMD	전체
+18	법정동코드	ADRCD_ID	전체
+19	주소내역	ADRES_BRKDN	전체
+20	상세주소내역	DTLAD_BRKDN	전체
+21	우편번호	ZIP_CODE	전체
+22	학교도로명 우편번호	SCHUL_RDNZC	전체
+23	학교도로명 주소	SCHUL_RDNMA	전체
+24	학교도로명 상세주소	SCHUL_RDNDA	전체
+25	위도	LTTUD	전체
+26	경도	LGTUD	전체
+27	전화번호	USER_TELNO	전체
+28	전화번호(교무실)	USER_TELNO_SW	전체
+29	전화번호(행정실)	USER_TELNO_GA	전체
+30	팩스번호	PERC_FAXNO	전체
+31	홈페이지 주소	HMPG_ADRES	전체
+32	남녀공학 구분	COEDU_SC_CODE	전체
+33	폐교여부	ABSCH_YN	전체
+34	폐교일자	ABSCH_YMD	전체
+35	휴교여부	CLOSE_YN	전체
+36	학교과정구분값(2-3-4)	SCHUL_CRSE_SC_VALUE	각종
+37	학교과정구분명(초-중-고)	SCHUL_CRSE_SC_VALUE_NM	각종
+결과메세지
+결과메세지 정보의 번호, 변수명, 설명등의 정보를 알려준다.
+번호	변수명	설명
+1	resultCode	조회 결과 코드
+success : 성공, fail : 실패
+2	resultMsg	조회 결과 메시지
+성공 : 정상
+실패 : 실패 원인에 대한 메세지
+3	list	출력값 상위 Node
+
+분류체계	학사/학생 > 수업일수 및 수업시수 현황
+요청 URL	http://www.schoolinfo.go.kr/openApi.do	요청제한횟수	제한없음
+제공방식	REST	데이터포맷	JSON
+기관	교육	적제주기	연간
+이용허락조건	
+출처표시 : 출처를 표시하면 영리 목적의 이용이나 변경 및 2차적저작물의 작성을 포함한 자유 이용을 할 수 있습니다.
+요청인자
+요청인자 정보의 변수명, 요청인자타입, 설명, 비고등의 정보를 알려준다.
+변수명	요청인자타입	설명	비고
+apiKey	STRING(필수)	인증키	
+apiType	STRING(필수)	Api종류	08
+pbanYr	NUMBER(필수)	공시연도	yyyy(2020)
+*최근3년간의 정보만 제공됩니다.
+sidoCode	STRING(선택)	시도코드	시도시군구코드.xlsx
+sggCode	STRING(선택)	시군구코드
+schulKndCode	STRING(필수)	학교급구분	02:초등 03:중등 04:고등 05:특수
+
+결과메세지
+결과메세지 정보의 번호, 변수명, 설명등의 정보를 알려준다.
+번호	변수명	설명
+1	resultCode	조회 결과 코드
+success : 성공, fail : 실패
+2	resultMsg	조회 결과 메시지
+성공 : 정상
+실패 : 실패 원인에 대한 메세지
+3	list	출력값 상위 Node
+
+메타정보
+학교 기본 메타정보의 분류체계, 요청 URL, 제공방식, 기관 등의 정보를 알려준다.
+분류체계	학사/학생 > 자유학기제 운영에 관한 사항
+요청 URL	http://www.schoolinfo.go.kr/openApi.do	요청제한횟수	제한없음
+제공방식	REST	데이터포맷	JSON
+기관	교육	적제주기	연간
+이용허락조건	
+출처표시 : 출처를 표시하면 영리 목적의 이용이나 변경 및 2차적저작물의 작성을 포함한 자유 이용을 할 수 있습니다.
+요청인자
+요청인자 정보의 변수명, 요청인자타입, 설명, 비고등의 정보를 알려준다.
+변수명	요청인자타입	설명	비고
+apiKey	STRING(필수)	인증키	
+apiType	STRING(필수)	Api종류	04
+pbanYr	NUMBER(필수)	공시연도	yyyy(2020)
+*최근3년간의 정보만 제공됩니다.
+sidoCode	STRING(선택)	시도코드	시도시군구코드.xlsx
+sggCode	STRING(선택)	시군구코드
+schulKndCode	STRING(필수)	학교급구분	03:중등
+depthNo	STRING(필수)	분류	10:1학기 20:2학기
+
+메타정보
+학교 기본 메타정보의 분류체계, 요청 URL, 제공방식, 기관 등의 정보를 알려준다.
+분류체계	학사/학생 > 학교 현황
+요청 URL	http://www.schoolinfo.go.kr/openApi.do	요청제한횟수	제한없음
+제공방식	REST	데이터포맷	JSON
+기관	교육	적제주기	연간
+이용허락조건	
+출처표시 : 출처를 표시하면 영리 목적의 이용이나 변경 및 2차적저작물의 작성을 포함한 자유 이용을 할 수 있습니다.
+요청인자
+요청인자 정보의 변수명, 요청인자타입, 설명, 비고등의 정보를 알려준다.
+변수명	요청인자타입	설명	비고
+apiKey	STRING(필수)	인증키	
+apiType	STRING(필수)	Api종류	62
+pbanYr	NUMBER(필수)	공시연도	yyyy(2020)
+*최근3년간의 정보만 제공됩니다.
+sidoCode	STRING(선택)	시도코드	시도시군구코드.xlsx
+sggCode	STRING(선택)	시군구코드
+schulKndCode	STRING(필수)	학교급구분	02:초등 03:중등 04:고등 05:특수 06:그외 07:각종
+
+메타정보
+학교 기본 메타정보의 분류체계, 요청 URL, 제공방식, 기관 등의 정보를 알려준다.
+분류체계	학사/학생 > 성별 학생수
+요청 URL	http://www.schoolinfo.go.kr/openApi.do	요청제한횟수	제한없음
+제공방식	REST	데이터포맷	JSON
+기관	교육	적제주기	연간
+이용허락조건	
+출처표시 : 출처를 표시하면 영리 목적의 이용이나 변경 및 2차적저작물의 작성을 포함한 자유 이용을 할 수 있습니다.
+요청인자
+요청인자 정보의 변수명, 요청인자타입, 설명, 비고등의 정보를 알려준다.
+변수명	요청인자타입	설명	비고
+apiKey	STRING(필수)	인증키	
+apiType	STRING(필수)	Api종류	63
+pbanYr	NUMBER(필수)	공시연도	yyyy(2020)
+*최근3년간의 정보만 제공됩니다.
+sidoCode	STRING(선택)	시도코드	시도시군구코드.xlsx
+sggCode	STRING(선택)	시군구코드
+schulKndCode	STRING(필수)	학교급구분	02:초등 03:중등 04:고등 05:특수 06:그외 07:각종
+
+메타정보
+학교 기본 메타정보의 분류체계, 요청 URL, 제공방식, 기관 등의 정보를 알려준다.
+분류체계	학사/학생 > 학년별·학급별 학생수
+요청 URL	http://www.schoolinfo.go.kr/openApi.do	요청제한횟수	제한없음
+제공방식	REST	데이터포맷	JSON
+기관	교육	적제주기	연간
+이용허락조건	
+출처표시 : 출처를 표시하면 영리 목적의 이용이나 변경 및 2차적저작물의 작성을 포함한 자유 이용을 할 수 있습니다.
+요청인자
+요청인자 정보의 변수명, 요청인자타입, 설명, 비고등의 정보를 알려준다.
+변수명	요청인자타입	설명	비고
+apiKey	STRING(필수)	인증키	
+apiType	STRING(필수)	Api종류	09
+pbanYr	NUMBER(필수)	공시연도	yyyy(2020)
+*최근3년간의 정보만 제공됩니다.
+sidoCode	STRING(선택)	시도코드	시도시군구코드.xlsx
+sggCode	STRING(선택)	시군구코드
+schulKndCode	STRING(필수)	학교급구분	02:초등 03:중등 04:고등 05:특수 06:그외 07:각종
+
+메타정보
+학교 기본 메타정보의 분류체계, 요청 URL, 제공방식, 기관 등의 정보를 알려준다.
+분류체계	학사/학생 > 전·출입 및 학업중단 학생 수
+요청 URL	http://www.schoolinfo.go.kr/openApi.do	요청제한횟수	제한없음
+제공방식	REST	데이터포맷	JSON
+기관	교육	적제주기	연간
+이용허락조건	
+출처표시 : 출처를 표시하면 영리 목적의 이용이나 변경 및 2차적저작물의 작성을 포함한 자유 이용을 할 수 있습니다.
+요청인자
+요청인자 정보의 변수명, 요청인자타입, 설명, 비고등의 정보를 알려준다.
+변수명	요청인자타입	설명	비고
+apiKey	STRING(필수)	인증키	
+apiType	STRING(필수)	Api종류	10
+pbanYr	NUMBER(필수)	공시연도	yyyy(2020)
+*최근3년간의 정보만 제공됩니다.
+sidoCode	STRING(선택)	시도코드	시도시군구코드.xlsx
+sggCode	STRING(선택)	시군구코드
+schulKndCode	STRING(필수)	학교급구분	02:초등 03:중등 04:고등 05:특수
+
+메타정보
+학교 기본 메타정보의 분류체계, 요청 URL, 제공방식, 기관 등의 정보를 알려준다.
+분류체계	학사/학생 > 직위별 교원 현황
+요청 URL	http://www.schoolinfo.go.kr/openApi.do	요청제한횟수	제한없음
+제공방식	REST	데이터포맷	JSON
+기관	교육	적제주기	연간
+이용허락조건	
+출처표시 : 출처를 표시하면 영리 목적의 이용이나 변경 및 2차적저작물의 작성을 포함한 자유 이용을 할 수 있습니다.
+요청인자
+요청인자 정보의 변수명, 요청인자타입, 설명, 비고등의 정보를 알려준다.
+변수명	요청인자타입	설명	비고
+apiKey	STRING(필수)	인증키	
+apiType	STRING(필수)	Api종류	22
+pbanYr	NUMBER(필수)	공시연도	yyyy(2020)
+*최근3년간의 정보만 제공됩니다.
+sidoCode	STRING(선택)	시도코드	시도시군구코드.xlsx
+sggCode	STRING(선택)	시군구코드
+schulKndCode	STRING(필수)	학교급구분	02:초등 03:중등 04:고등 05:특수 06:그외 07:각종
+
+메타정보
+학교 기본 메타정보의 분류체계, 요청 URL, 제공방식, 기관 등의 정보를 알려준다.
+분류체계	학사/학생 > 자격종별 교원 현황
+요청 URL	http://www.schoolinfo.go.kr/openApi.do	요청제한횟수	제한없음
+제공방식	REST	데이터포맷	JSON
+기관	교육	적제주기	연간
+이용허락조건	
+출처표시 : 출처를 표시하면 영리 목적의 이용이나 변경 및 2차적저작물의 작성을 포함한 자유 이용을 할 수 있습니다.
+요청인자
+요청인자 정보의 변수명, 요청인자타입, 설명, 비고등의 정보를 알려준다.
+변수명	요청인자타입	설명	비고
+apiKey	STRING(필수)	인증키	
+apiType	STRING(필수)	Api종류	64
+pbanYr	NUMBER(필수)	공시연도	yyyy(2020)
+*최근3년간의 정보만 제공됩니다.
+sidoCode	STRING(선택)	시도코드	시도시군구코드.xlsx
+sggCode	STRING(선택)	시군구코드
+schulKndCode	STRING(필수)	학교급구분	02:초등 03:중등 04:고등 05:특수 07:각종
+메타정보
+학교 기본 메타정보의 분류체계, 요청 URL, 제공방식, 기관 등의 정보를 알려준다.
+분류체계	학사/학생 > 표시과목별 교원 현황
+요청 URL	http://www.schoolinfo.go.kr/openApi.do	요청제한횟수	제한없음
+제공방식	REST	데이터포맷	JSON
+기관	교육	적제주기	연간
+이용허락조건	
+출처표시 : 출처를 표시하면 영리 목적의 이용이나 변경 및 2차적저작물의 작성을 포함한 자유 이용을 할 수 있습니다.
+요청인자
+요청인자 정보의 변수명, 요청인자타입, 설명, 비고등의 정보를 알려준다.
+변수명	요청인자타입	설명	비고
+apiKey	STRING(필수)	인증키	
+apiType	STRING(필수)	Api종류	24
+pbanYr	NUMBER(필수)	공시연도	yyyy(2020)
+*최근3년간의 정보만 제공됩니다.
+sidoCode	STRING(선택)	시도코드	시도시군구코드.xlsx
+sggCode	STRING(선택)	시군구코드
+schulKndCode	STRING(필수)	학교급구분	02:초등 03:중등 04:고등
+depthNo	STRING(필수)	분류	10:교과별 20:과목별
+
+메타정보
+학교 기본 메타정보의 분류체계, 요청 URL, 제공방식, 기관 등의 정보를 알려준다.
+분류체계	학사/학생 > 대상별 학교폭력 예방교육 실적
+요청 URL	http://www.schoolinfo.go.kr/openApi.do	요청제한횟수	제한없음
+제공방식	REST	데이터포맷	JSON
+기관	교육	적제주기	연간
+이용허락조건	
+출처표시 : 출처를 표시하면 영리 목적의 이용이나 변경 및 2차적저작물의 작성을 포함한 자유 이용을 할 수 있습니다.
+요청인자
+요청인자 정보의 변수명, 요청인자타입, 설명, 비고등의 정보를 알려준다.
+변수명	요청인자타입	설명	비고
+apiKey	STRING(필수)	인증키	
+apiType	STRING(필수)	Api종류	94
+pbanYr	NUMBER(필수)	공시연도	yyyy(2020)
+*최근3년간의 정보만 제공됩니다.
+sidoCode	STRING(선택)	시도코드	시도시군구코드.xlsx
+sggCode	STRING(선택)	시군구코드
+schulKndCode	STRING(필수)	학교급구분	02:초등 03:중등 04:고등 05:특수 07:각종
+메타정보
+학교 기본 메타정보의 분류체계, 요청 URL, 제공방식, 기관 등의 정보를 알려준다.
+분류체계	학사/학생 > 입학생 현황
+요청 URL	http://www.schoolinfo.go.kr/openApi.do	요청제한횟수	제한없음
+제공방식	REST	데이터포맷	JSON
+기관	교육	적제주기	연간
+이용허락조건	
+출처표시 : 출처를 표시하면 영리 목적의 이용이나 변경 및 2차적저작물의 작성을 포함한 자유 이용을 할 수 있습니다.
+요청인자
+요청인자 정보의 변수명, 요청인자타입, 설명, 비고등의 정보를 알려준다.
+변수명	요청인자타입	설명	비고
+apiKey	STRING(필수)	인증키	
+apiType	STRING(필수)	Api종류	51
+pbanYr	NUMBER(필수)	공시연도	yyyy(2020)
+*최근3년간의 정보만 제공됩니다.
+sidoCode	STRING(선택)	시도코드	시도시군구코드.xlsx
+sggCode	STRING(선택)	시군구코드
+schulKndCode	STRING(필수)	학교급구분	02:초등 03:중등 04:고등 05:특수
+
+
+
+
+

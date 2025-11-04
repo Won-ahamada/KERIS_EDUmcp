@@ -1,0 +1,1305 @@
+{
+  "provider": {
+    "id": "school-alrimi",
+    "name": "학교알리미",
+    "version": "1.0.0",
+    "description": "학교알리미 공공 API - 전국 학교 정보 및 교육 통계",
+    "baseUrl": "http://www.schoolinfo.go.kr/openApi.do",
+    "authentication": {
+      "type": "apiKey",
+      "parameterName": "apiKey",
+      "in": "query"
+    },
+    "rateLimit": {
+      "enabled": false,
+      "description": "제한없음"
+    },
+    "license": {
+      "type": "출처표시",
+      "url": "http://www.kogl.or.kr/info/license.do#03-tab",
+      "description": "출처를 표시하면 영리 목적의 이용이나 변경 및 2차적저작물의 작성을 포함한 자유 이용을 할 수 있습니다."
+    }
+  },
+  "endpoints": [
+    {
+      "id": "school-basic-info",
+      "apiType": "0",
+      "category": "기본정보",
+      "name": "학교 기본정보",
+      "description": "전국 학교의 기본 정보를 조회합니다 (학교명, 주소, 연락처 등)",
+      "method": "GET",
+      "path": "/openApi.do",
+      "parameters": [
+        {
+          "name": "apiKey",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "description": "인증키"
+        },
+        {
+          "name": "apiType",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "value": "0",
+          "description": "API 종류"
+        },
+        {
+          "name": "sidoCode",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "description": "시도코드 (예: 11-서울, 26-부산)",
+          "example": "11"
+        },
+        {
+          "name": "sggCode",
+          "in": "query",
+          "type": "string",
+          "required": false,
+          "description": "시군구코드 (예: 11110-종로구)",
+          "example": "11110"
+        },
+        {
+          "name": "schulKndCode",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "description": "학교급구분",
+          "enum": ["02", "03", "04", "05", "06", "07"],
+          "enumDescriptions": {
+            "02": "초등학교",
+            "03": "중학교",
+            "04": "고등학교",
+            "05": "특수학교",
+            "06": "그외",
+            "07": "각종학교"
+          },
+          "example": "04"
+        }
+      ],
+      "response": {
+        "fields": [
+          {
+            "id": "ATPT_OFCDC_ORG_NM",
+            "name": "시도교육청",
+            "type": "string",
+            "example": "서울특별시교육청"
+          },
+          {
+            "id": "ATPT_OFCDC_ORG_CODE",
+            "name": "시도교육청코드",
+            "type": "string",
+            "example": "B10"
+          },
+          {
+            "id": "JU_ORG_NM",
+            "name": "교육지원청",
+            "type": "string"
+          },
+          {
+            "id": "JU_ORG_CODE",
+            "name": "교육지원청코드",
+            "type": "string"
+          },
+          {
+            "id": "SCHUL_CODE",
+            "name": "정보공시 학교코드",
+            "type": "string",
+            "description": "학교 고유 식별자",
+            "example": "7010001"
+          },
+          {
+            "id": "SCHUL_NM",
+            "name": "학교명",
+            "type": "string",
+            "example": "서울고등학교"
+          },
+          {
+            "id": "SCHUL_KND_SC_CODE",
+            "name": "학교급코드",
+            "type": "string"
+          },
+          {
+            "id": "FOND_SC_CODE",
+            "name": "설립구분",
+            "type": "string"
+          },
+          {
+            "id": "ADRES_BRKDN",
+            "name": "주소내역",
+            "type": "string"
+          },
+          {
+            "id": "SCHUL_RDNMA",
+            "name": "학교도로명주소",
+            "type": "string"
+          },
+          {
+            "id": "LTTUD",
+            "name": "위도",
+            "type": "string"
+          },
+          {
+            "id": "LGTUD",
+            "name": "경도",
+            "type": "string"
+          },
+          {
+            "id": "USER_TELNO",
+            "name": "전화번호",
+            "type": "string"
+          },
+          {
+            "id": "HMPG_ADRES",
+            "name": "홈페이지주소",
+            "type": "string"
+          },
+          {
+            "id": "COEDU_SC_CODE",
+            "name": "남녀공학구분",
+            "type": "string"
+          },
+          {
+            "id": "FOND_YMD",
+            "name": "설립일",
+            "type": "string"
+          }
+        ]
+      },
+      "cache": {
+        "enabled": true,
+        "ttl": 86400,
+        "description": "24시간 캐시 (기본정보는 자주 변경되지 않음)"
+      }
+    },
+    {
+      "id": "class-days",
+      "apiType": "08",
+      "category": "학사/학생",
+      "name": "수업일수 및 수업시수 현황",
+      "description": "학교의 연간 수업일수와 수업시수 정보",
+      "method": "GET",
+      "path": "/openApi.do",
+      "parameters": [
+        {
+          "name": "apiKey",
+          "in": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "apiType",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "value": "08"
+        },
+        {
+          "name": "pbanYr",
+          "in": "query",
+          "type": "number",
+          "required": true,
+          "description": "공시연도 (최근 3년간 정보만 제공)",
+          "example": 2024
+        },
+        {
+          "name": "sidoCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sggCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "schulKndCode",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "enum": ["02", "03", "04", "05"],
+          "enumDescriptions": {
+            "02": "초등학교",
+            "03": "중학교",
+            "04": "고등학교",
+            "05": "특수학교"
+          }
+        }
+      ],
+      "cache": {
+        "enabled": true,
+        "ttl": 2592000,
+        "description": "30일 캐시 (연간 데이터)"
+      }
+    },
+    {
+      "id": "free-semester",
+      "apiType": "04",
+      "category": "학사/학생",
+      "name": "자유학기제 운영에 관한 사항",
+      "description": "중학교의 자유학기제 운영 정보",
+      "method": "GET",
+      "path": "/openApi.do",
+      "parameters": [
+        {
+          "name": "apiKey",
+          "in": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "apiType",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "value": "04"
+        },
+        {
+          "name": "pbanYr",
+          "in": "query",
+          "type": "number",
+          "required": true,
+          "description": "공시연도"
+        },
+        {
+          "name": "sidoCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sggCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "schulKndCode",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "value": "03",
+          "description": "중학교만 해당"
+        },
+        {
+          "name": "depthNo",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "enum": ["10", "20"],
+          "enumDescriptions": {
+            "10": "1학기",
+            "20": "2학기"
+          }
+        }
+      ],
+      "cache": {
+        "enabled": true,
+        "ttl": 2592000
+      }
+    },
+    {
+      "id": "school-status",
+      "apiType": "62",
+      "category": "학사/학생",
+      "name": "학교 현황",
+      "description": "학교의 전체 현황 정보",
+      "method": "GET",
+      "path": "/openApi.do",
+      "parameters": [
+        {
+          "name": "apiKey",
+          "in": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "apiType",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "value": "62"
+        },
+        {
+          "name": "pbanYr",
+          "in": "query",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "sidoCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sggCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "schulKndCode",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "enum": ["02", "03", "04", "05", "06", "07"]
+        }
+      ],
+      "cache": {
+        "enabled": true,
+        "ttl": 2592000
+      }
+    },
+    {
+      "id": "student-gender",
+      "apiType": "63",
+      "category": "학사/학생",
+      "name": "성별 학생수",
+      "description": "학교의 남녀 학생 수 통계",
+      "method": "GET",
+      "path": "/openApi.do",
+      "parameters": [
+        {
+          "name": "apiKey",
+          "in": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "apiType",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "value": "63"
+        },
+        {
+          "name": "pbanYr",
+          "in": "query",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "sidoCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sggCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "schulKndCode",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "enum": ["02", "03", "04", "05", "06", "07"]
+        }
+      ],
+      "cache": {
+        "enabled": true,
+        "ttl": 2592000
+      }
+    },
+    {
+      "id": "student-by-grade",
+      "apiType": "09",
+      "category": "학사/학생",
+      "name": "학년별·학급별 학생수",
+      "description": "학년별, 학급별 상세 학생 수",
+      "method": "GET",
+      "path": "/openApi.do",
+      "parameters": [
+        {
+          "name": "apiKey",
+          "in": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "apiType",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "value": "09"
+        },
+        {
+          "name": "pbanYr",
+          "in": "query",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "sidoCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sggCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "schulKndCode",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "enum": ["02", "03", "04", "05", "06", "07"]
+        }
+      ],
+      "cache": {
+        "enabled": true,
+        "ttl": 2592000
+      }
+    },
+    {
+      "id": "student-transfer",
+      "apiType": "10",
+      "category": "학사/학생",
+      "name": "전·출입 및 학업중단 학생 수",
+      "description": "전학, 학업중단 학생 통계",
+      "method": "GET",
+      "path": "/openApi.do",
+      "parameters": [
+        {
+          "name": "apiKey",
+          "in": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "apiType",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "value": "10"
+        },
+        {
+          "name": "pbanYr",
+          "in": "query",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "sidoCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sggCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "schulKndCode",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "enum": ["02", "03", "04", "05"]
+        }
+      ],
+      "cache": {
+        "enabled": true,
+        "ttl": 2592000
+      }
+    },
+    {
+      "id": "teacher-position",
+      "apiType": "22",
+      "category": "교원",
+      "name": "직위별 교원 현황",
+      "description": "교장, 교감, 교사 등 직위별 교원 수",
+      "method": "GET",
+      "path": "/openApi.do",
+      "parameters": [
+        {
+          "name": "apiKey",
+          "in": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "apiType",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "value": "22"
+        },
+        {
+          "name": "pbanYr",
+          "in": "query",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "sidoCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sggCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "schulKndCode",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "enum": ["02", "03", "04", "05", "06", "07"]
+        }
+      ],
+      "cache": {
+        "enabled": true,
+        "ttl": 2592000
+      }
+    },
+    {
+      "id": "teacher-license",
+      "apiType": "64",
+      "category": "교원",
+      "name": "자격종별 교원 현황",
+      "description": "정교사, 준교사 등 자격별 교원 수",
+      "method": "GET",
+      "path": "/openApi.do",
+      "parameters": [
+        {
+          "name": "apiKey",
+          "in": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "apiType",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "value": "64"
+        },
+        {
+          "name": "pbanYr",
+          "in": "query",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "sidoCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sggCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "schulKndCode",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "enum": ["02", "03", "04", "05", "07"]
+        }
+      ],
+      "cache": {
+        "enabled": true,
+        "ttl": 2592000
+      }
+    },
+    {
+      "id": "teacher-subject",
+      "apiType": "24",
+      "category": "교원",
+      "name": "표시과목별 교원 현황",
+      "description": "국어, 영어, 수학 등 과목별 교원 수",
+      "method": "GET",
+      "path": "/openApi.do",
+      "parameters": [
+        {
+          "name": "apiKey",
+          "in": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "apiType",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "value": "24"
+        },
+        {
+          "name": "pbanYr",
+          "in": "query",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "sidoCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sggCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "schulKndCode",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "enum": ["02", "03", "04"]
+        },
+        {
+          "name": "depthNo",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "enum": ["10", "20"],
+          "enumDescriptions": {
+            "10": "교과별",
+            "20": "과목별"
+          }
+        }
+      ],
+      "cache": {
+        "enabled": true,
+        "ttl": 2592000
+      }
+    },
+    {
+      "id": "violence-prevention",
+      "apiType": "94",
+      "category": "학교생활",
+      "name": "대상별 학교폭력 예방교육 실적",
+      "description": "학교폭력 예방교육 실시 현황",
+      "method": "GET",
+      "path": "/openApi.do",
+      "parameters": [
+        {
+          "name": "apiKey",
+          "in": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "apiType",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "value": "94"
+        },
+        {
+          "name": "pbanYr",
+          "in": "query",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "sidoCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sggCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "schulKndCode",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "enum": ["02", "03", "04", "05", "07"]
+        }
+      ],
+      "cache": {
+        "enabled": true,
+        "ttl": 2592000
+      }
+    },
+    {
+      "id": "enrollment",
+      "apiType": "51",
+      "category": "학사/학생",
+      "name": "입학생 현황",
+      "description": "신입생 입학 통계",
+      "method": "GET",
+      "path": "/openApi.do",
+      "parameters": [
+        {
+          "name": "apiKey",
+          "in": "query",
+          "type": "string",
+          "required": true
+        },
+        {
+          "name": "apiType",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "value": "51"
+        },
+        {
+          "name": "pbanYr",
+          "in": "query",
+          "type": "number",
+          "required": true
+        },
+        {
+          "name": "sidoCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "sggCode",
+          "in": "query",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "schulKndCode",
+          "in": "query",
+          "type": "string",
+          "required": true,
+          "enum": ["02", "03", "04", "05"]
+        }
+      ],
+      "cache": {
+        "enabled": true,
+        "ttl": 2592000
+      }
+    }
+  ],
+  "tools": [
+    {
+      "name": "search_schools",
+      "description": "조건에 맞는 학교를 검색합니다",
+      "category": "검색",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "region": {
+            "type": "string",
+            "description": "시도명 (예: 서울특별시, 부산광역시)",
+            "example": "서울특별시"
+          },
+          "district": {
+            "type": "string",
+            "description": "시군구명 (예: 강남구, 해운대구)",
+            "example": "강남구"
+          },
+          "schoolType": {
+            "type": "string",
+            "enum": ["02", "03", "04", "05", "06", "07"],
+            "description": "학교급 (02:초등, 03:중등, 04:고등, 05:특수, 06:그외, 07:각종)",
+            "example": "04"
+          },
+          "schoolName": {
+            "type": "string",
+            "description": "학교명 검색어 (부분 일치)",
+            "example": "고등학교"
+          }
+        },
+        "required": ["schoolType"]
+      },
+      "outputSchema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "SCHUL_CODE": {
+              "type": "string",
+              "description": "학교코드"
+            },
+            "SCHUL_NM": {
+              "type": "string",
+              "description": "학교명"
+            },
+            "ATPT_OFCDC_ORG_NM": {
+              "type": "string",
+              "description": "시도교육청"
+            },
+            "ADRES_BRKDN": {
+              "type": "string",
+              "description": "주소"
+            },
+            "USER_TELNO": {
+              "type": "string",
+              "description": "전화번호"
+            }
+          }
+        }
+      },
+      "endpoints": ["school-basic-info"],
+      "example": {
+        "input": {
+          "region": "서울특별시",
+          "district": "강남구",
+          "schoolType": "04"
+        },
+        "output": [
+          {
+            "SCHUL_CODE": "7010001",
+            "SCHUL_NM": "서울고등학교",
+            "ATPT_OFCDC_ORG_NM": "서울특별시교육청",
+            "ADRES_BRKDN": "서울특별시 강남구 대치동",
+            "USER_TELNO": "02-1234-5678"
+          }
+        ]
+      }
+    },
+    {
+      "name": "get_student_statistics",
+      "description": "학교의 학생 통계 정보를 조회합니다 (학생 수, 학급 수 등)",
+      "category": "통계",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "schoolCode": {
+            "type": "string",
+            "description": "학교코드 (SCHUL_CODE)",
+            "example": "7010001"
+          },
+          "year": {
+            "type": "number",
+            "description": "공시연도 (최근 3년)",
+            "example": 2024
+          },
+          "includeGenderStats": {
+            "type": "boolean",
+            "description": "성별 통계 포함 여부",
+            "default": true
+          },
+          "includeGradeStats": {
+            "type": "boolean",
+            "description": "학년별 통계 포함 여부",
+            "default": true
+          }
+        },
+        "required": ["schoolCode", "year"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "schoolCode": {
+            "type": "string"
+          },
+          "schoolName": {
+            "type": "string"
+          },
+          "year": {
+            "type": "number"
+          },
+          "totalStudents": {
+            "type": "number",
+            "description": "전체 학생 수"
+          },
+          "genderStats": {
+            "type": "object",
+            "properties": {
+              "male": {
+                "type": "number"
+              },
+              "female": {
+                "type": "number"
+              }
+            }
+          },
+          "gradeStats": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "grade": {
+                  "type": "number"
+                },
+                "students": {
+                  "type": "number"
+                },
+                "classes": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "endpoints": ["student-gender", "student-by-grade"],
+      "example": {
+        "input": {
+          "schoolCode": "7010001",
+          "year": 2024,
+          "includeGenderStats": true,
+          "includeGradeStats": true
+        },
+        "output": {
+          "schoolCode": "7010001",
+          "schoolName": "서울고등학교",
+          "year": 2024,
+          "totalStudents": 1200,
+          "genderStats": {
+            "male": 600,
+            "female": 600
+          },
+          "gradeStats": [
+            {
+              "grade": 1,
+              "students": 400,
+              "classes": 10
+            },
+            {
+              "grade": 2,
+              "students": 400,
+              "classes": 10
+            },
+            {
+              "grade": 3,
+              "students": 400,
+              "classes": 10
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "get_teacher_statistics",
+      "description": "학교의 교원 통계 정보를 조회합니다",
+      "category": "통계",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "schoolCode": {
+            "type": "string",
+            "description": "학교코드",
+            "example": "7010001"
+          },
+          "year": {
+            "type": "number",
+            "description": "공시연도",
+            "example": 2024
+          },
+          "includePositionStats": {
+            "type": "boolean",
+            "description": "직위별 통계 포함",
+            "default": true
+          },
+          "includeSubjectStats": {
+            "type": "boolean",
+            "description": "과목별 통계 포함",
+            "default": false
+          }
+        },
+        "required": ["schoolCode", "year"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "schoolCode": {
+            "type": "string"
+          },
+          "year": {
+            "type": "number"
+          },
+          "totalTeachers": {
+            "type": "number"
+          },
+          "positionStats": {
+            "type": "object",
+            "properties": {
+              "principal": {
+                "type": "number",
+                "description": "교장"
+              },
+              "vicePrincipal": {
+                "type": "number",
+                "description": "교감"
+              },
+              "teacher": {
+                "type": "number",
+                "description": "교사"
+              }
+            }
+          },
+          "studentTeacherRatio": {
+            "type": "number",
+            "description": "학생-교사 비율"
+          }
+        }
+      },
+      "endpoints": ["teacher-position", "teacher-subject"],
+      "example": {
+        "input": {
+          "schoolCode": "7010001",
+          "year": 2024
+        },
+        "output": {
+          "schoolCode": "7010001",
+          "year": 2024,
+          "totalTeachers": 80,
+          "positionStats": {
+            "principal": 1,
+            "vicePrincipal": 2,
+            "teacher": 77
+          },
+          "studentTeacherRatio": 15
+        }
+      }
+    },
+    {
+      "name": "analyze_school_comprehensive",
+      "description": "학교의 종합 분석 정보를 제공합니다 (기본정보 + 학생통계 + 교원통계)",
+      "category": "분석",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "schoolCode": {
+            "type": "string",
+            "description": "학교코드",
+            "example": "7010001"
+          },
+          "year": {
+            "type": "number",
+            "description": "분석 기준 연도",
+            "example": 2024
+          }
+        },
+        "required": ["schoolCode", "year"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "basic": {
+            "type": "object",
+            "description": "학교 기본정보"
+          },
+          "students": {
+            "type": "object",
+            "description": "학생 통계"
+          },
+          "teachers": {
+            "type": "object",
+            "description": "교원 통계"
+          },
+          "insights": {
+            "type": "object",
+            "properties": {
+              "studentTeacherRatio": {
+                "type": "number",
+                "description": "학생-교사 비율"
+              },
+              "averageClassSize": {
+                "type": "number",
+                "description": "평균 학급 규모"
+              },
+              "genderBalance": {
+                "type": "string",
+                "description": "성비 균형도"
+              }
+            }
+          }
+        }
+      },
+      "endpoints": [
+        "school-basic-info",
+        "student-gender",
+        "student-by-grade",
+        "teacher-position"
+      ],
+      "example": {
+        "input": {
+          "schoolCode": "7010001",
+          "year": 2024
+        },
+        "output": {
+          "basic": {
+            "SCHUL_NM": "서울고등학교",
+            "ADRES_BRKDN": "서울특별시 강남구"
+          },
+          "students": {
+            "total": 1200,
+            "male": 600,
+            "female": 600
+          },
+          "teachers": {
+            "total": 80
+          },
+          "insights": {
+            "studentTeacherRatio": 15,
+            "averageClassSize": 40,
+            "genderBalance": "균형"
+          }
+        }
+      }
+    },
+    {
+      "name": "compare_schools",
+      "description": "여러 학교를 비교 분석합니다",
+      "category": "분석",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "schoolCodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "비교할 학교 코드 목록 (최대 5개)",
+            "example": ["7010001", "7010002", "7010003"]
+          },
+          "year": {
+            "type": "number",
+            "description": "비교 기준 연도",
+            "example": 2024
+          },
+          "metrics": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "student_count",
+                "teacher_count",
+                "student_teacher_ratio",
+                "class_size"
+              ]
+            },
+            "description": "비교할 지표",
+            "example": ["student_count", "student_teacher_ratio"]
+          }
+        },
+        "required": ["schoolCodes", "year"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "schools": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "schoolCode": {
+                  "type": "string"
+                },
+                "schoolName": {
+                  "type": "string"
+                },
+                "metrics": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "ranking": {
+            "type": "object",
+            "description": "각 지표별 순위"
+          }
+        }
+      },
+      "endpoints": [
+        "school-basic-info",
+        "student-gender",
+        "teacher-position"
+      ]
+    }
+  ],
+  "referenceData": {
+    "sidoCodes": {
+      "description": "시도 코드 매핑",
+      "file": "data/sido-codes.json",
+      "structure": {
+        "sidoName": "string",
+        "sidoCode": "string",
+        "sggName": "string",
+        "sggCode": "string"
+      }
+    },
+    "schoolTypes": {
+      "02": "초등학교",
+      "03": "중학교",
+      "04": "고등학교",
+      "05": "특수학교",
+      "06": "그외",
+      "07": "각종학교"
+    }
+  },
+  "errorCodes": {
+    "SUCCESS": {
+      "code": "success",
+      "description": "정상 처리"
+    },
+    "FAIL": {
+      "code": "fail",
+      "description": "요청 실패",
+      "possibleReasons": [
+        "잘못된 API 키",
+        "잘못된 파라미터",
+        "데이터 없음",
+        "서버 오류"
+      ]
+    }
+  },
+  "implementation": {
+    "priority": {
+      "phase1": [
+        "school-basic-info",
+        "student-gender",
+        "teacher-position"
+      ],
+      "phase2": [
+        "school-status",
+        "student-by-grade",
+        "teacher-license"
+      ],
+      "phase3": [
+        "class-days",
+        "enrollment",
+        "student-transfer",
+        "teacher-subject",
+        "violence-prevention",
+        "free-semester"
+      ]
+    },
+    "dependencies": {
+      "search_schools": {
+        "requires": ["school-basic-info"],
+        "optional": []
+      },
+      "get_student_statistics": {
+        "requires": ["student-gender"],
+        "optional": ["student-by-grade"]
+      },
+      "get_teacher_statistics": {
+        "requires": ["teacher-position"],
+        "optional": ["teacher-subject"]
+      },
+      "analyze_school_comprehensive": {
+        "requires": [
+          "school-basic-info",
+          "student-gender",
+          "teacher-position"
+        ],
+        "optional": ["student-by-grade", "school-status"]
+      }
+    }
+  }
+}

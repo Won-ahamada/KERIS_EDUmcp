@@ -1,0 +1,434 @@
+{
+  "provider": {
+    "id": "school-alrimi",
+    "name": "학교알리미",
+    "version": "2.0.0",
+    "description": "학교알리미 공공 API - 전국 학교 정보 및 교육 통계",
+    "baseUrl": "http://www.schoolinfo.go.kr/openApi.do",
+    "method": "GET",
+    "authentication": {
+      "type": "apiKey",
+      "parameterName": "apiKey",
+      "in": "query"
+    },
+    "dataFormat": "JSON",
+    "rateLimit": {
+      "enabled": false
+    },
+    "license": {
+      "type": "출처표시",
+      "url": "http://www.kogl.or.kr/info/license.do#03-tab"
+    }
+  },
+  "commonParameters": {
+    "description": "모든 엔드포인트에 공통으로 적용되는 파라미터",
+    "required": [
+      {
+        "name": "apiKey",
+        "type": "string",
+        "description": "인증키"
+      },
+      {
+        "name": "apiType",
+        "type": "string",
+        "description": "API 종류 (각 엔드포인트별로 고유값)"
+      },
+      {
+        "name": "schulKndCode",
+        "type": "string",
+        "description": "학교급구분",
+        "enum": ["02", "03", "04", "05", "06", "07"],
+        "enumDescriptions": {
+          "02": "초등학교",
+          "03": "중학교",
+          "04": "고등학교",
+          "05": "특수학교",
+          "06": "그외",
+          "07": "각종학교"
+        }
+      }
+    ],
+    "optional": [
+      {
+        "name": "sidoCode",
+        "type": "string",
+        "description": "시도코드",
+        "example": "11"
+      },
+      {
+        "name": "sggCode",
+        "type": "string",
+        "description": "시군구코드",
+        "example": "11110"
+      }
+    ],
+    "timeSeriesParameters": [
+      {
+        "name": "pbanYr",
+        "type": "number",
+        "description": "공시연도 (최근 3년)",
+        "example": 2024,
+        "note": "시계열 데이터가 있는 엔드포인트에만 적용"
+      }
+    ]
+  },
+  "endpointGroups": {
+    "basic": {
+      "description": "기본정보 - 공시연도 불필요",
+      "requiresYear": false,
+      "cacheTtl": 86400,
+      "endpoints": [
+        {
+          "id": "school-basic-info",
+          "apiType": "0",
+          "name": "학교 기본정보",
+          "description": "학교명, 주소, 연락처 등 기본 정보",
+          "category": "기본정보",
+          "schoolTypes": ["02", "03", "04", "05", "06", "07"],
+          "responseFields": [
+            "ATPT_OFCDC_ORG_NM", "SCHUL_CODE", "SCHUL_NM", "SCHUL_KND_SC_CODE",
+            "ADRES_BRKDN", "SCHUL_RDNMA", "LTTUD", "LGTUD",
+            "USER_TELNO", "HMPG_ADRES", "COEDU_SC_CODE", "FOND_YMD"
+          ]
+        }
+      ]
+    },
+    "student": {
+      "description": "학사/학생 정보 - 공시연도 필수",
+      "requiresYear": true,
+      "cacheTtl": 2592000,
+      "endpoints": [
+        {
+          "id": "class-days",
+          "apiType": "08",
+          "name": "수업일수 및 수업시수",
+          "category": "학사/학생",
+          "schoolTypes": ["02", "03", "04", "05"]
+        },
+        {
+          "id": "school-status",
+          "apiType": "62",
+          "name": "학교 현황",
+          "category": "학사/학생",
+          "schoolTypes": ["02", "03", "04", "05", "06", "07"]
+        },
+        {
+          "id": "student-gender",
+          "apiType": "63",
+          "name": "성별 학생수",
+          "category": "학사/학생",
+          "schoolTypes": ["02", "03", "04", "05", "06", "07"]
+        },
+        {
+          "id": "student-by-grade",
+          "apiType": "09",
+          "name": "학년별·학급별 학생수",
+          "category": "학사/학생",
+          "schoolTypes": ["02", "03", "04", "05", "06", "07"]
+        },
+        {
+          "id": "student-transfer",
+          "apiType": "10",
+          "name": "전·출입 및 학업중단 학생수",
+          "category": "학사/학생",
+          "schoolTypes": ["02", "03", "04", "05"]
+        },
+        {
+          "id": "enrollment",
+          "apiType": "51",
+          "name": "입학생 현황",
+          "category": "학사/학생",
+          "schoolTypes": ["02", "03", "04", "05"]
+        }
+      ]
+    },
+    "student-special": {
+      "description": "특수 파라미터가 있는 학사/학생 정보",
+      "requiresYear": true,
+      "cacheTtl": 2592000,
+      "endpoints": [
+        {
+          "id": "free-semester",
+          "apiType": "04",
+          "name": "자유학기제 운영",
+          "category": "학사/학생",
+          "schoolTypes": ["03"],
+          "additionalParameters": [
+            {
+              "name": "depthNo",
+              "type": "string",
+              "required": true,
+              "enum": ["10", "20"],
+              "enumDescriptions": {
+                "10": "1학기",
+                "20": "2학기"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "teacher": {
+      "description": "교원 정보 - 공시연도 필수",
+      "requiresYear": true,
+      "cacheTtl": 2592000,
+      "endpoints": [
+        {
+          "id": "teacher-position",
+          "apiType": "22",
+          "name": "직위별 교원 현황",
+          "category": "교원",
+          "schoolTypes": ["02", "03", "04", "05", "06", "07"]
+        },
+        {
+          "id": "teacher-license",
+          "apiType": "64",
+          "name": "자격종별 교원 현황",
+          "category": "교원",
+          "schoolTypes": ["02", "03", "04", "05", "07"]
+        }
+      ]
+    },
+    "teacher-special": {
+      "description": "특수 파라미터가 있는 교원 정보",
+      "requiresYear": true,
+      "cacheTtl": 2592000,
+      "endpoints": [
+        {
+          "id": "teacher-subject",
+          "apiType": "24",
+          "name": "표시과목별 교원 현황",
+          "category": "교원",
+          "schoolTypes": ["02", "03", "04"],
+          "additionalParameters": [
+            {
+              "name": "depthNo",
+              "type": "string",
+              "required": true,
+              "enum": ["10", "20"],
+              "enumDescriptions": {
+                "10": "교과별",
+                "20": "과목별"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "safety": {
+      "description": "학교생활 및 안전 - 공시연도 필수",
+      "requiresYear": true,
+      "cacheTtl": 2592000,
+      "endpoints": [
+        {
+          "id": "violence-prevention",
+          "apiType": "94",
+          "name": "학교폭력 예방교육 실적",
+          "category": "학교생활",
+          "schoolTypes": ["02", "03", "04", "05", "07"]
+        }
+      ]
+    }
+  },
+  "commonResponse": {
+    "description": "모든 엔드포인트의 공통 응답 구조",
+    "structure": {
+      "resultCode": {
+        "type": "string",
+        "enum": ["success", "fail"],
+        "description": "조회 결과 코드"
+      },
+      "resultMsg": {
+        "type": "string",
+        "description": "조회 결과 메시지"
+      },
+      "list": {
+        "type": "array",
+        "description": "결과 데이터 배열"
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "search_schools",
+      "description": "조건에 맞는 학교를 검색합니다",
+      "category": "검색",
+      "usesEndpoints": ["school-basic-info"],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "region": { "type": "string", "description": "시도명" },
+          "district": { "type": "string", "description": "시군구명" },
+          "schoolType": {
+            "type": "string",
+            "enum": ["02", "03", "04", "05", "06", "07"],
+            "description": "학교급"
+          },
+          "schoolName": { "type": "string", "description": "학교명 검색어" }
+        },
+        "required": ["schoolType"]
+      }
+    },
+    {
+      "name": "get_student_statistics",
+      "description": "학교의 학생 통계 조회",
+      "category": "통계",
+      "usesEndpoints": ["student-gender", "student-by-grade"],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "schoolCode": { "type": "string" },
+          "year": { "type": "number" },
+          "includeGenderStats": { "type": "boolean", "default": true },
+          "includeGradeStats": { "type": "boolean", "default": true }
+        },
+        "required": ["schoolCode", "year"]
+      }
+    },
+    {
+      "name": "get_teacher_statistics",
+      "description": "학교의 교원 통계 조회",
+      "category": "통계",
+      "usesEndpoints": ["teacher-position", "teacher-subject"],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "schoolCode": { "type": "string" },
+          "year": { "type": "number" },
+          "includePositionStats": { "type": "boolean", "default": true },
+          "includeSubjectStats": { "type": "boolean", "default": false }
+        },
+        "required": ["schoolCode", "year"]
+      }
+    },
+    {
+      "name": "analyze_school_comprehensive",
+      "description": "학교 종합 분석 (기본정보 + 학생 + 교원)",
+      "category": "분석",
+      "usesEndpoints": [
+        "school-basic-info",
+        "student-gender",
+        "student-by-grade",
+        "teacher-position"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "schoolCode": { "type": "string" },
+          "year": { "type": "number" }
+        },
+        "required": ["schoolCode", "year"]
+      }
+    },
+    {
+      "name": "compare_schools",
+      "description": "여러 학교 비교 분석",
+      "category": "분석",
+      "usesEndpoints": [
+        "school-basic-info",
+        "student-gender",
+        "teacher-position"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "schoolCodes": {
+            "type": "array",
+            "items": { "type": "string" },
+            "maxItems": 5
+          },
+          "year": { "type": "number" },
+          "metrics": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["student_count", "teacher_count", "student_teacher_ratio", "class_size"]
+            }
+          }
+        },
+        "required": ["schoolCodes", "year"]
+      }
+    }
+  ],
+  "implementation": {
+    "description": "구현 시 활용 방법",
+    "requestBuilder": {
+      "description": "모든 요청은 다음 패턴을 따름",
+      "pattern": "baseUrl?apiKey={key}&apiType={type}&sidoCode={sido}&sggCode={sgg}&schulKndCode={school}&pbanYr={year}",
+      "logic": {
+        "1_base": "baseUrl + commonParameters.required",
+        "2_location": "commonParameters.optional (선택사항)",
+        "3_year": "endpointGroup.requiresYear가 true면 pbanYr 추가",
+        "4_additional": "endpoint.additionalParameters 추가 (있는 경우)"
+      }
+    },
+    "endpointLookup": {
+      "description": "엔드포인트 찾기",
+      "byId": "endpoints.find(e => e.id === 'school-basic-info')",
+      "byApiType": "endpoints.find(e => e.apiType === '0')",
+      "byCategory": "endpoints.filter(e => e.category === '학사/학생')"
+    },
+    "validationRules": {
+      "schulKndCode": "endpoint.schoolTypes에 포함된 값만 허용",
+      "pbanYr": "requiresYear가 true인 그룹만 필수",
+      "additionalParameters": "endpoint.additionalParameters에 정의된 경우만 추가"
+    },
+    "cacheStrategy": {
+      "description": "그룹별 캐시 전략",
+      "basic": "86400초 (24시간) - 기본정보는 거의 변하지 않음",
+      "timeSeries": "2592000초 (30일) - 공시 데이터는 연간 단위"
+    }
+  },
+  "codeGeneration": {
+    "description": "이 스펙으로 자동 생성 가능한 코드",
+    "typescript": {
+      "endpoint_class": {
+        "template": "class {PascalCase(id)}Endpoint extends EndpointBase",
+        "properties": {
+          "id": "endpoint.id",
+          "apiType": "endpoint.apiType",
+          "name": "endpoint.name",
+          "category": "endpoint.category",
+          "requiresYear": "endpointGroup.requiresYear",
+          "cacheTtl": "endpointGroup.cacheTtl",
+          "allowedSchoolTypes": "endpoint.schoolTypes",
+          "additionalParams": "endpoint.additionalParameters"
+        }
+      },
+      "factory_pattern": {
+        "description": "EndpointFactory로 모든 엔드포인트 생성",
+        "code": "endpointGroups.flatMap(group => group.endpoints.map(e => new Endpoint(e, group)))"
+      }
+    }
+  },
+  "statistics": {
+    "totalEndpoints": 12,
+    "totalTools": 5,
+    "endpointsByCategory": {
+      "기본정보": 1,
+      "학사/학생": 7,
+      "교원": 3,
+      "학교생활": 1
+    },
+    "endpointsBySchoolType": {
+      "allSchools": 5,
+      "elementaryToSpecial": 5,
+      "elementaryToHigh": 1,
+      "middleOnly": 1
+    }
+  },
+  "extensionExample": {
+    "description": "새 API 추가 예시 - 이렇게 간단하게 추가",
+    "newEndpoint": {
+      "id": "new-endpoint",
+      "apiType": "99",
+      "name": "새로운 정보",
+      "category": "학사/학생",
+      "schoolTypes": ["02", "03", "04"]
+    },
+    "steps": [
+      "1. endpointGroups.student.endpoints 배열에 위 객체 추가",
+      "2. 끝! (나머지는 자동 생성)"
+    ]
+  }
+}
