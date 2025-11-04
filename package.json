@@ -4,23 +4,46 @@
   "description": "확장 가능한 교육 API 통합 MCP 서버 - TOON 파일만 넣으면 자동 확장",
   "main": "dist/index.js",
   "type": "module",
+  "bin": {
+    "edu-api-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "providers",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm run build",
     "providers:list": "node dist/cli.js list",
     "providers:validate": "node dist/cli.js validate"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Won-ahamada/KERIS_EDUmcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Won-ahamada/KERIS_EDUmcp/issues"
+  },
+  "homepage": "https://github.com/Won-ahamada/KERIS_EDUmcp#readme",
   "keywords": [
     "mcp",
+    "model-context-protocol",
     "education",
+    "korean-education",
+    "school-info",
     "api",
     "toon",
     "plugin",
-    "extensible"
+    "extensible",
+    "api-integration"
   ],
-  "author": "",
+  "author": "Won-ahamada",
   "license": "MIT",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
