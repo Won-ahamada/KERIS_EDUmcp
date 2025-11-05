@@ -90,24 +90,24 @@ tools[5]{name,description,category,usesEndpoints}:
 commonResponse{resultCode,resultMsg,list}:
   success|fail,string(조회결과메시지),array(결과데이터)
 
-## 구현 로직 (의사코드)
-
-# 요청 URL 빌드
-REQUEST_PATTERN:
-  {baseUrl}?apiKey={key}&apiType={endpoint.apiType}&sidoCode={sido}&sggCode={sgg}&schulKndCode={school}
-  IF endpoint.group.requiresYear THEN &pbanYr={year}
-  IF endpoint.additionalParam THEN &{paramName}={value}
-
-# 검증 규칙
-VALIDATION:
-  1. schulKndCode IN endpoint.schoolTypes
-  2. IF group.requiresYear THEN pbanYr REQUIRED
-  3. IF endpoint.additionalParam THEN validate enum values
-
-# 캐싱 전략
-CACHE:
-  basic: 86400s (24h) - 기본정보는 거의 변하지 않음
-  timeSeries: 2592000s (30d) - 공시 데이터는 연간 단위
+# ## 구현 로직 (의사코드)
+#
+# # 요청 URL 빌드
+# REQUEST_PATTERN:
+#   {baseUrl}?apiKey={key}&apiType={endpoint.apiType}&sidoCode={sido}&sggCode={sgg}&schulKndCode={school}
+#   IF endpoint.group.requiresYear THEN &pbanYr={year}
+#   IF endpoint.additionalParam THEN &{paramName}={value}
+#
+# # 검증 규칙
+# VALIDATION:
+#   1. schulKndCode IN endpoint.schoolTypes
+#   2. IF group.requiresYear THEN pbanYr REQUIRED
+#   3. IF endpoint.additionalParam THEN validate enum values
+#
+# # 캐싱 전략
+# CACHE:
+#   basic: 86400s (24h) - 기본정보는 거의 변하지 않음
+#   timeSeries: 2592000s (30d) - 공시 데이터는 연간 단위
 
 ## 통계
 statistics{totalEndpoints,totalTools,totalGroups}:
