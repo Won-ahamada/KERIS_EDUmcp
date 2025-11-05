@@ -13,6 +13,7 @@
 - **타입 안전성**: 100% TypeScript로 작성되어 타입 안전성 보장
 - **압축 효율**: TOON 포맷을 사용하여 API 스펙을 85% 압축 (JSON 대비)
 - **플러그인 아키텍처**: 각 API는 독립적인 Provider로 동작
+- **🌐 웹 통합 지원**: HTTP 버전으로 웹 애플리케이션에서도 사용 가능 (NEW!)
 
 ## 📋 포함된 Provider
 
@@ -107,6 +108,67 @@ Claude Desktop의 설정 파일(`claude_desktop_config.json`)에 다음을 추�
 ### 3. Claude Desktop 재시작
 
 설정 변경 후 Claude Desktop을 재시작하면 MCP Tools가 자동으로 로드됩니다.
+
+---
+
+## 🌐 HTTP 버전 (웹 애플리케이션 통합)
+
+**NEW!** MCP 서버를 HTTP로 실행하여 웹 애플리케이션 (KERIS_AI_Chatbot 등)에서 사용할 수 있습니다.
+
+### HTTP 서버 실행
+
+```bash
+# 개발 모드 (watch)
+npm run dev:http
+
+# 프로덕션 모드
+npm run start:http
+```
+
+서버가 `http://localhost:3000`에서 시작됩니다.
+
+### Endpoints
+
+- **Health Check**: `GET /health`
+- **MCP API**: `POST /mcp` (JSON-RPC 2.0)
+
+### 웹 클라이언트에서 사용
+
+```typescript
+// 도구 목록 조회
+const response = await fetch('http://localhost:3000/mcp', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jsonrpc: '2.0',
+    id: 1,
+    method: 'tools/list',
+    params: {}
+  })
+});
+
+const { result } = await response.json();
+console.log('사용 가능한 도구:', result.tools);
+```
+
+### 원격 배포 (무료)
+
+#### Fly.io 배포
+```bash
+fly deploy --dockerfile Dockerfile.http
+```
+
+#### Railway 배포
+웹사이트에서 GitHub 저장소 연결 후 배포
+
+### 상세 가이드
+
+**완전한 HTTP 통합 가이드**: [HTTP_DEPLOYMENT_GUIDE.md](HTTP_DEPLOYMENT_GUIDE.md)
+
+- KERIS_AI_Chatbot 통합 예제
+- Next.js API Route 예제
+- Fly.io/Railway 배포 가이드
+- 문제 해결 가이드
 
 ## ➕ 새 Provider 추가하기
 
