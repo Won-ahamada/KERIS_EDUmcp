@@ -1,6 +1,6 @@
 {
   "name": "KERIS EDU MCP Server",
-  "description": "Korean Education API MCP Server with TOON plugin architecture",
+  "description": "Korean Education API MCP Server with HTTP transport - Web integration ready",
   "version": "1.0.0",
   "author": "Won-ahamada",
   "repository": {
@@ -12,6 +12,18 @@
     "education",
     "korean-education",
     "mcp",
-    "api-integration"
-  ]
+    "api-integration",
+    "http-transport",
+    "streamable-http"
+  ],
+  "transport": "http",
+  "runtime": "node",
+  "entrypoint": "dist/index-http.js",
+  "buildCommand": "npm install && npm run build",
+  "installCommand": "npm install",
+  "port": 3000,
+  "healthCheck": {
+    "path": "/health",
+    "interval": 30
+  }
 }
