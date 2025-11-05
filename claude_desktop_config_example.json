@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "keris-edu": {
+      "command": "node",
+      "args": [
+        "C:/Users/ahama/Desktop/AI CLIs/KERIS_EDUmcp/dist/index.js"
+      ],
+      "env": {
+        "CACHE_ENABLED": "true",
+        "CACHE_TTL": "3600",
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}
