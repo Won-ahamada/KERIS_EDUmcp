@@ -28,7 +28,7 @@ commonParameters.timeSeries[1]{name,type,description,required}:
   pbanYr,number,공시연도(최근3년),true
 
 ## 학교급 코드 매핑
-schoolTypes[7]{code,name}:
+schoolTypes[6]{code,name}:
   02,초등학교
   03,중학교
   04,고등학교
@@ -113,7 +113,7 @@ commonResponse{resultCode,resultMsg,list}:
 statistics{totalEndpoints,totalTools,totalGroups}:
   12,5,6
 
-endpointsByCategory[3]{category,count}:
+endpointsByCategory[4]{category,count}:
   기본정보,1
   학사/학생,7
   교원,3
