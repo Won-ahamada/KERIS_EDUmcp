@@ -399,7 +399,8 @@ export class ToonParser {
 // 사용 예시
 // ============================================
 
-if (require.main === module) {
+// ES 모듈에서 직접 실행 감지
+if (import.meta.url === `file://${process.argv[1]}`) {
   console.log('=== TOON Parser 테스트 ===\n');
 
   const toonData = `
