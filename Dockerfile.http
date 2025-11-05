@@ -1,0 +1,63 @@
+# Multi-stage build for HTTP MCP Server
+# 최적화된 컨테이너 이미지
+
+# Stage 1: Builder
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# 의존성 파일 복사
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# 의존성 설치 (개발 의존성 포함)
+RUN npm ci
+
+# 소스 코드 복사
+COPY src ./src
+COPY providers ./providers
+
+# TypeScript 빌드
+RUN npm run build
+
+# Stage 2: Production
+FROM node:20-alpine
+
+# 필수 시스템 패키지 설치
+RUN apk add --no-cache tini
+
+WORKDIR /app
+
+# 의존성 파일 복사
+COPY package*.json ./
+
+# Production 의존성만 설치
+RUN npm ci --only=production && \
+    npm cache clean --force
+
+# 빌드 결과물 복사
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/providers ./providers
+
+# README, LICENSE 등 메타데이터
+COPY README.md LICENSE ./
+
+# 비root 사용자 생성
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 && \
+    chown -R nodejs:nodejs /app
+
+USER nodejs
+
+# HTTP 서버 포트
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {r.statusCode === 200 ? process.exit(0) : process.exit(1)})"
+
+# tini를 init 프로세스로 사용 (signal handling)
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# HTTP 서버 시작
+CMD ["node", "dist/index-http.js"]

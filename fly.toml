@@ -1,0 +1,40 @@
+# Fly.io 배포 설정
+# HTTP MCP Server for KERIS Education API
+
+app = "keris-edu-mcp"
+primary_region = "nrt" # Tokyo (가장 가까운 리전)
+
+[build]
+  dockerfile = "Dockerfile.http"
+
+[env]
+  PORT = "3000"
+  HOST = "0.0.0.0"
+  NODE_ENV = "production"
+  # Provider 경로는 기본값 사용
+  # PROVIDERS_DIR = "/app/providers"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0 # 비용 절감: 요청이 없으면 0대
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 250
+    soft_limit = 200
+
+[[http_service.checks]]
+  grace_period = "5s"
+  interval = "30s"
+  method = "GET"
+  timeout = "5s"
+  path = "/health"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 256 # 최소 메모리 (256MB)
