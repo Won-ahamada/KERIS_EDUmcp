@@ -10,6 +10,15 @@ import type {
   Parameter,
   ApiResponse
 } from '../types/index.js';
+import {
+  ErrorCode,
+  ValidationError,
+  ApiError,
+  httpStatusToErrorCode,
+} from '../lib/errors.js';
+import { CacheFactory, CacheKeyBuilder, type Cache } from '../lib/cache.js';
+import { LoggerFactory } from '../lib/logger.js';
+import { ParameterValidator } from '../lib/validator.js';
 
 interface ExecutableEndpoint extends Endpoint {
   execute: (params: Record<string, any>) => Promise<ApiResponse>;
@@ -25,13 +34,23 @@ interface ExecutableProvider {
 }
 
 export class ProviderFactory {
+  private static cache: Cache = CacheFactory.getInstance('api', {
+    max: 1000,
+    ttl: 3600000, // 1시간 기본 TTL
+  });
+  private static logger = LoggerFactory.getLogger('provider-factory');
+
   /**
    * ProviderSpec으로부터 실행 가능한 Provider 생성
    */
   static createProvider(spec: ProviderSpec): ExecutableProvider {
     const { provider, commonParameters, endpointGroups, endpoints } = spec;
 
-    console.log(`🏭 Creating provider: ${provider.name} v${provider.version}`);
+    this.logger.info('Creating provider', {
+      providerId: provider.id,
+      providerName: provider.name,
+      version: provider.version,
+    });
 
     // Endpoint Map 생성
     const endpointMap = new Map<string, ExecutableEndpoint>();
@@ -68,7 +87,10 @@ export class ProviderFactory {
       }
     }
 
-    console.log(`✅ Created ${endpointMap.size} endpoint(s) for ${provider.name}`);
+    this.logger.info('Provider created successfully', {
+      providerId: provider.id,
+      endpointCount: endpointMap.size,
+    });
 
     // ExecutableProvider 반환
     return {
@@ -85,11 +107,17 @@ export class ProviderFactory {
         const endpoint = endpointMap.get(endpointId);
 
         if (!endpoint) {
+          const error = new ValidationError(
+            `Endpoint '${endpointId}' not found in provider '${provider.name}'`,
+            ErrorCode.ENDPOINT_NOT_FOUND,
+            { providerId: provider.id, endpointId }
+          );
+
           return {
             success: false,
             error: {
-              code: 'ENDPOINT_NOT_FOUND',
-              message: `Endpoint '${endpointId}' not found in provider '${provider.name}'`,
+              code: error.code,
+              message: error.getUserMessage(),
             },
           };
         }
@@ -136,13 +164,27 @@ export class ProviderFactory {
     const execute = async (params: Record<string, any>): Promise<ApiResponse> => {
       try {
         // 1. 파라미터 검증
-        const validation = this.validateParameters(allParameters, params);
+        const validation = ParameterValidator.validate(allParameters, params);
         if (!validation.valid) {
+          this.logger.warn('Parameter validation failed', {
+            endpointId: endpointDef.id,
+            errors: validation.errors,
+          });
+
+          const error = new ValidationError(
+            validation.errors.map(e => e.message).join(', '),
+            ErrorCode.INVALID_PARAMETERS,
+            {
+              endpointId: endpointDef.id,
+              validationErrors: validation.errors,
+            }
+          );
+
           return {
             success: false,
             error: {
-              code: 'INVALID_PARAMETERS',
-              message: validation.error || 'Invalid parameters',
+              code: error.code,
+              message: error.getUserMessage(),
             },
           };
         }
@@ -155,10 +197,26 @@ export class ProviderFactory {
         // 3. URL 생성
         const url = this.buildUrl(provider.baseUrl, params, provider.method);
 
-        console.log(`🌐 Calling ${endpointDef.name} (${endpointDef.id})`);
-        console.log(`   URL: ${url}`);
+        this.logger.logApiRequest(provider.id, endpointDef.id, params);
+        this.logger.debug('API request URL', { url });
 
-        // 4. HTTP 요청
+        // 4. 캐시 키 생성
+        const cacheKey = CacheKeyBuilder.forApiRequest(
+          provider.id,
+          endpointDef.id,
+          params
+        );
+
+        // 5. 캐시 조회
+        const cached = await this.cache.get(cacheKey);
+        if (cached !== undefined) {
+          return {
+            success: true,
+            data: cached,
+          };
+        }
+
+        // 6. HTTP 요청
         const response = await this.makeRequest(
           url,
           provider.method,
@@ -167,15 +225,39 @@ export class ProviderFactory {
           provider.authentication
         );
 
+        // 7. 성공 시 캐시 저장
+        if (response.success && response.data) {
+          await this.cache.set(cacheKey, response.data, cacheTtl);
+        }
+
         return response;
-      } catch (error: any) {
-        console.error(`❌ Error executing ${endpointDef.id}:`, error.message);
+      } catch (error: unknown) {
+        this.logger.error(
+          'Endpoint execution failed',
+          error instanceof Error ? error : undefined,
+          { endpointId: endpointDef.id }
+        );
+
+        const mcpError = error instanceof Error
+          ? new ApiError(
+              error.message,
+              ErrorCode.ENDPOINT_EXECUTION_FAILED,
+              {
+                endpointId: endpointDef.id,
+                originalError: error.name,
+              }
+            )
+          : new ApiError(
+              'Unknown execution error',
+              ErrorCode.ENDPOINT_EXECUTION_FAILED,
+              { endpointId: endpointDef.id }
+            );
 
         return {
           success: false,
           error: {
-            code: 'EXECUTION_ERROR',
-            message: error.message,
+            code: mcpError.code,
+            message: mcpError.getUserMessage(),
           },
         };
       }
@@ -190,37 +272,6 @@ export class ProviderFactory {
     };
   }
 
-  /**
-   * 파라미터 검증
-   */
-  private static validateParameters(
-    schema: Parameter[],
-    params: Record<string, any>
-  ): { valid: boolean; error?: string } {
-    // Required 파라미터 체크
-    for (const param of schema) {
-      if (param.required && !(param.name in params)) {
-        return {
-          valid: false,
-          error: `Required parameter '${param.name}' is missing`,
-        };
-      }
-    }
-
-    // Enum 체크
-    for (const param of schema) {
-      if (param.enum && params[param.name]) {
-        if (!param.enum.includes(String(params[param.name]))) {
-          return {
-            valid: false,
-            error: `Parameter '${param.name}' must be one of: ${param.enum.join(', ')}`,
-          };
-        }
-      }
-    }
-
-    return { valid: true };
-  }
 
   /**
    * URL 생성
@@ -274,7 +325,12 @@ export class ProviderFactory {
       const response = await fetch(url, options);
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        const errorCode = httpStatusToErrorCode(response.status);
+        throw new ApiError(
+          `HTTP ${response.status}: ${response.statusText}`,
+          errorCode,
+          { url, statusCode: response.status }
+        );
       }
 
       // 응답 파싱
@@ -294,12 +350,18 @@ export class ProviderFactory {
         success: true,
         data,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const mcpError = error instanceof ApiError
+        ? error
+        : error instanceof Error
+        ? new ApiError(error.message, ErrorCode.HTTP_ERROR, { url })
+        : new ApiError('Unknown HTTP error', ErrorCode.HTTP_ERROR, { url });
+
       return {
         success: false,
         error: {
-          code: 'HTTP_ERROR',
-          message: error.message,
+          code: mcpError.code,
+          message: mcpError.getUserMessage(),
         },
       };
     }
@@ -318,12 +380,36 @@ export class ProviderFactory {
    * 모든 Provider 생성
    */
   static createProviders(specs: ProviderSpec[]): ExecutableProvider[] {
-    console.log(`\n🏭 Creating ${specs.length} provider(s)...\n`);
+    this.logger.info('Creating providers', { count: specs.length });
 
     const providers = specs.map(spec => this.createProvider(spec));
 
-    console.log(`\n✅ Successfully created ${providers.length} provider(s)\n`);
+    this.logger.info('All providers created successfully', { count: providers.length });
 
     return providers;
+  }
+
+  /**
+   * 캐시 통계 조회
+   */
+  static async getCacheStats() {
+    return await this.cache.stats();
+  }
+
+  /**
+   * 캐시 초기화
+   */
+  static async clearCache() {
+    await this.cache.clear();
+  }
+
+  /**
+   * 특정 패턴의 캐시 삭제
+   */
+  static async invalidateCache(pattern: RegExp) {
+    if ('deletePattern' in this.cache) {
+      return await (this.cache as any).deletePattern(pattern);
+    }
+    return 0;
   }
 }

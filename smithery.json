@@ -1,0 +1,128 @@
+{
+  "name": "KERIS EDU MCP Server",
+  "description": "확장 가능한 교육 API 통합 MCP 서버 - TOON 파일만 넣으면 자동 확장되는 플러그인 아키텍처",
+  "version": "1.0.0",
+  "author": "Won-ahamada",
+  "tags": [
+    "education",
+    "korean-education",
+    "school-info",
+    "api-integration",
+    "toon",
+    "plugin",
+    "extensible"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Won-ahamada/KERIS_EDUmcp"
+  },
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "education",
+    "korean-education",
+    "school-alrimi",
+    "neis",
+    "open-api",
+    "toon-format",
+    "plugin-architecture"
+  ],
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "KERIS_API_KEY": {
+        "type": "string",
+        "description": "학교알리미 API 인증키 (선택사항)",
+        "default": ""
+      },
+      "NEIS_API_KEY": {
+        "type": "string",
+        "description": "나이스 오픈API 인증키 (선택사항)",
+        "default": ""
+      },
+      "CACHE_ENABLED": {
+        "type": "boolean",
+        "description": "API 응답 캐싱 활성화",
+        "default": true
+      },
+      "CACHE_TTL": {
+        "type": "number",
+        "description": "캐시 TTL (초 단위)",
+        "default": 3600
+      },
+      "LOG_LEVEL": {
+        "type": "string",
+        "enum": ["error", "warn", "info", "http", "debug"],
+        "description": "로그 레벨",
+        "default": "info"
+      }
+    }
+  },
+  "examples": [
+    {
+      "name": "학교 기본정보 조회",
+      "description": "시도 및 학교급별 학교 기본정보를 조회합니다",
+      "tool": "search-schools",
+      "input": {
+        "sidoCode": "11",
+        "schulKndCode": "04"
+      }
+    },
+    {
+      "name": "학교 상세정보 조회",
+      "description": "특정 학교의 상세 정보를 조회합니다",
+      "tool": "get-school-info",
+      "input": {
+        "schulCode": "7001234",
+        "infoType": "basic"
+      }
+    }
+  ],
+  "features": [
+    "🔌 플러그인 아키텍처 - TOON 파일만 추가하면 자동으로 API 통합",
+    "💾 LRU 캐싱 - API 응답 자동 캐싱으로 90% 속도 향상",
+    "📝 구조화된 로깅 - Winston 기반 프로덕션급 로깅",
+    "✅ 자동 입력 검증 - 파라미터 스키마 기반 자동 검증",
+    "🔴 체계화된 에러 처리 - 23개 에러 코드와 재시도 전략",
+    "🚀 TypeScript - 완벽한 타입 안전성",
+    "📦 Zero Configuration - API 키만 있으면 바로 사용 가능"
+  ],
+  "providers": [
+    {
+      "id": "school-alrimi",
+      "name": "학교알리미",
+      "description": "학교 기본정보, 학생수, 교원수 등 공시정보 제공",
+      "endpoints": 12
+    },
+    {
+      "id": "neis-open-api",
+      "name": "나이스 오픈API",
+      "description": "학교기본정보, 급식정보, 학사일정 등 제공",
+      "endpoints": 8
+    }
+  ],
+  "toolCategories": [
+    {
+      "name": "학교 정보",
+      "tools": ["search-schools", "get-school-info", "get-school-stats"]
+    },
+    {
+      "name": "학생 정보",
+      "tools": ["get-student-count", "get-class-info"]
+    },
+    {
+      "name": "교원 정보",
+      "tools": ["get-teacher-count", "get-teacher-position"]
+    },
+    {
+      "name": "급식 정보",
+      "tools": ["get-meal-info", "get-meal-schedule"]
+    }
+  ],
+  "documentation": {
+    "readme": "README.md",
+    "guide": "DEPLOYMENT_GUIDE.md",
+    "npm": "NPM_PUBLISH_GUIDE.md"
+  }
+}

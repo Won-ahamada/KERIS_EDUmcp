@@ -1,0 +1,58 @@
+# Node modules (will be installed in container)
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Build artifacts (will be built in container)
+dist/
+
+# Development files
+*.log
+logs/
+
+# Test files
+coverage/
+.nyc_output/
+**/*.test.ts
+**/*.spec.ts
+__tests__/
+__mocks__/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation (except essential ones)
+docs/
+examples/
+
+# Temp
+tmp/
+temp/
+*.tmp
+
+# CI/CD
+.github/
+.travis.yml
+.circleci/
+
+# Phase summaries
+PHASE*.md
